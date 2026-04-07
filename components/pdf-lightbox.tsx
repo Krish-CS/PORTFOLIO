@@ -35,11 +35,6 @@ export default function PdfLightbox({ open, title, subtitle, src, onClose }: Pdf
               <X size={16} />
             </button>
             <div className="panelInset" style={{ paddingBottom: 20 }}>
-              <div className="sectionEyebrow">Preview</div>
-              <h3 className="cardTitle" style={{ marginTop: 8 }}>
-                {title}
-              </h3>
-              {subtitle ? <p className="sectionLead" style={{ marginTop: 10 }}>{subtitle}</p> : null}
               <PdfPreview src={src} alt={title} className="panelInset certificatePreviewShell" scale={2.8} />
             </div>
           </motion.div>

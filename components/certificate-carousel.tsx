@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
 import { useState } from "react";
 import PdfPreview from "./pdf-preview";
 import type { CertificateItem } from "../lib/content";
-import { certificatePdfUrl } from "../lib/asset";
+import { globalCertificatePdfUrl } from "../lib/asset";
 
 type CertificateCarouselProps = {
   certificates: CertificateItem[];
@@ -15,7 +15,7 @@ type CertificateCarouselProps = {
 export default function CertificateCarousel({ certificates, onOpen }: CertificateCarouselProps) {
   const [index, setIndex] = useState(0);
   const current = certificates[index];
-  const src = certificatePdfUrl(current.fileName);
+  const src = globalCertificatePdfUrl(current.fileName);
 
   const next = () => setIndex((value) => (value + 1) % certificates.length);
   const previous = () => setIndex((value) => (value - 1 + certificates.length) % certificates.length);
@@ -23,10 +23,7 @@ export default function CertificateCarousel({ certificates, onOpen }: Certificat
   return (
     <div className="glassPanel carouselFrame panelInset certificateStage">
       <div className="projectHeader">
-        <div>
-          <div className="sectionEyebrow">Global Certifications</div>
-          <h3 className="cardTitle">One certificate at a time.</h3>
-        </div>
+        <h3 className="cardTitle">Global certificates</h3>
         <div className="carouselIndex">
           {String(index + 1).padStart(2, "0")} / {String(certificates.length).padStart(2, "0")}
         </div>
@@ -35,23 +32,21 @@ export default function CertificateCarousel({ certificates, onOpen }: Certificat
       <AnimatePresence mode="wait">
         <motion.div
           key={current.fileName}
-          initial={{ opacity: 0, y: 18, filter: "blur(10px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          exit={{ opacity: 0, y: -16, filter: "blur(8px)" }}
+          initial={{ opacity: 0, x: 28, filter: "blur(10px)" }}
+          animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+          exit={{ opacity: 0, x: 24, filter: "blur(8px)" }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="carouselViewport"
         >
           <PdfPreview src={src} alt={current.title} className="panelInset certificatePreviewShell" scale={2.6} />
-          <div className="panelInset" style={{ paddingTop: 0 }}>
-            <div className="sequenceBadge">{current.issuer}</div>
-            <h4 className="cardTitle" style={{ fontSize: "clamp(1.8rem, 2.4vw, 2.5rem)" }}>
+          <div className="panelInset certificateMeta" style={{ paddingTop: 0 }}>
+            <h4 className="cardTitle" style={{ fontSize: "clamp(1.7rem, 2.2vw, 2.3rem)" }}>
               {current.title}
             </h4>
-            {current.summary ? <p className="sectionLead" style={{ marginTop: 10 }}>{current.summary}</p> : null}
-            <div className="buttonRow" style={{ marginTop: 18 }}>
+            <div className="buttonRow" style={{ marginTop: 14 }}>
               <button className="button primary" type="button" onClick={() => onOpen(current)}>
                 <Maximize2 size={16} />
-                Open preview
+                Open
               </button>
             </div>
           </div>

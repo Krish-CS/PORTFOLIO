@@ -20,8 +20,7 @@ export default function ProjectCarousel({ projects }: ProjectCarouselProps) {
     <div className="glassPanel carouselFrame panelInset">
       <div className="projectHeader">
         <div>
-          <div className="sectionEyebrow">Featured Work</div>
-          <h3 className="cardTitle">One project at a time.</h3>
+          <h3 className="cardTitle">Projects</h3>
         </div>
         <div className="carouselIndex">
           {String(index + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}
@@ -41,7 +40,6 @@ export default function ProjectCarousel({ projects }: ProjectCarouselProps) {
           >
             <div className="cardHeader">
               <div>
-                <div className="sequenceBadge">Project {String(index + 1).padStart(2, "0")}</div>
                 <h4 className="cardTitle" style={{ maxWidth: "12ch" }}>
                   {current.title}
                 </h4>

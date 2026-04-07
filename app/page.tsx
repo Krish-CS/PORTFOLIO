@@ -1,21 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   BookOpen,
   BriefcaseBusiness,
+  Code2,
+  ChevronLeft,
+  ChevronRight,
   ExternalLink,
   GraduationCap,
   Mail,
   MapPin,
   Phone,
   Sparkles,
-  Star,
+  FileText,
   Trophy,
   Users,
 } from "lucide-react";
+import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 import SequenceBackdrop from "../components/sequence-backdrop";
 import ProjectCarousel from "../components/project-carousel";
 import CertificateCarousel from "../components/certificate-carousel";
@@ -32,10 +36,12 @@ import {
   heroCopy,
   internships,
   navigation,
+  membership,
   otherCertificates,
   profileStats,
+  type CertificateItem,
 } from "../lib/content";
-import { certificatePdfUrl, profilePhotoUrl } from "../lib/asset";
+import { certificatePdfUrl, globalCertificatePdfUrl, membershipPdfUrl, profilePhotoUrl } from "../lib/asset";
 
 type LightboxState = {
   title: string;
@@ -50,21 +56,21 @@ function SectionShell({
   lead,
   children,
   className = "",
-}: Readonly<{
+}: {
   id: string;
   eyebrow: string;
   title: string;
-  lead: string;
-  children: React.ReactNode;
+  lead?: string;
+  children: ReactNode;
   className?: string;
-}>) {
+}) {
   return (
     <motion.section
       id={id}
       data-scene
       className={`sectionShell ${className}`.trim()}
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, x: 28 }}
+      whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true, amount: 0.32 }}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
     >
@@ -72,7 +78,7 @@ function SectionShell({
         <div className="sectionHeader">
           <div className="sectionEyebrow">{eyebrow}</div>
           <h2 className="sectionTitle">{title}</h2>
-          <p className="sectionLead">{lead}</p>
+          {lead ? <p className="sectionLead">{lead}</p> : null}
         </div>
         {children}
       </div>
@@ -80,9 +86,30 @@ function SectionShell({
   );
 }
 
+function getProfileIcon(label: string) {
+  if (label === "GitHub") return FaGithub;
+  if (label === "LinkedIn") return FaLinkedinIn;
+  if (label === "LeetCode") return Code2;
+  if (label === "HackerRank") return Trophy;
+  return FileText;
+}
+
+function chunkItems<T>(items: T[], chunkSize: number) {
+  const chunks: T[][] = [];
+
+  for (let index = 0; index < items.length; index += chunkSize) {
+    chunks.push(items.slice(index, index + chunkSize));
+  }
+
+  return chunks;
+}
+
 export default function Page() {
   const [activeSection, setActiveSection] = useState("hero");
   const [lightbox, setLightbox] = useState<LightboxState>(null);
+  const [otherCertPage, setOtherCertPage] = useState(0);
+
+  const otherCertificatePages = chunkItems(otherCertificates, 4);
 
   useEffect(() => {
     const observed = Array.from(document.querySelectorAll<HTMLElement>("[data-scene]"));
@@ -106,6 +133,52 @@ export default function Page() {
     observed.forEach((section) => observer.observe(section));
 
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const cards = Array.from(document.querySelectorAll<HTMLElement>(".glassPanel"));
+    const cleanups: Array<() => void> = [];
+
+    const updateTilt = (element: HTMLElement, clientX: number, clientY: number) => {
+      const rect = element.getBoundingClientRect();
+      const x = (clientX - rect.left) / rect.width;
+      const y = (clientY - rect.top) / rect.height;
+      const tiltX = ((0.5 - y) * 12).toFixed(2);
+      const tiltY = ((x - 0.5) * 12).toFixed(2);
+
+      element.style.setProperty("--tilt-x", `${tiltX}deg`);
+      element.style.setProperty("--tilt-y", `${tiltY}deg`);
+      element.style.setProperty("--sheen-x", `${(x * 100).toFixed(2)}%`);
+      element.style.setProperty("--sheen-y", `${(y * 100).toFixed(2)}%`);
+    };
+
+    const clearTilt = (element: HTMLElement) => {
+      element.style.setProperty("--tilt-x", "0deg");
+      element.style.setProperty("--tilt-y", "0deg");
+      element.style.setProperty("--sheen-x", "50%");
+      element.style.setProperty("--sheen-y", "50%");
+    };
+
+    cards.forEach((element) => {
+      const onPointerMove = (event: PointerEvent) => updateTilt(element, event.clientX, event.clientY);
+      const onPointerLeave = () => clearTilt(element);
+
+      element.style.setProperty("--tilt-x", "0deg");
+      element.style.setProperty("--tilt-y", "0deg");
+      element.style.setProperty("--sheen-x", "50%");
+      element.style.setProperty("--sheen-y", "50%");
+      element.addEventListener("pointermove", onPointerMove);
+      element.addEventListener("pointerleave", onPointerLeave);
+
+      cleanups.push(() => {
+        element.removeEventListener("pointermove", onPointerMove);
+        element.removeEventListener("pointerleave", onPointerLeave);
+      });
+    });
+
+    return () => {
+      cleanups.forEach((cleanup) => cleanup());
+    };
   }, []);
 
   return (
@@ -196,20 +269,15 @@ export default function Page() {
         <SectionShell
           id="projects"
           eyebrow="Projects"
-          title="Selected projects"
-          lead="One project is shown at a time with clear context and direct links."
+          title="Selected work"
           className="projectsSection"
         >
           <div className="sectionGrid">
             <ProjectCarousel projects={featuredProjects} />
             <div className="glassPanel panelInset">
-              <div className="sectionEyebrow">GitHub</div>
               <h3 className="cardTitle" style={{ fontSize: "clamp(1.9rem, 2.6vw, 2.7rem)" }}>
-                Public repositories and live demos.
+                GitHub / live demos
               </h3>
-              <p className="sectionLead" style={{ marginTop: 12 }}>
-                GitHub and selected live projects are available for review.
-              </p>
               <div className="buttonRow" style={{ marginTop: 20 }}>
                 <a className="button primary" href="https://github.com/Krish-CS" target="_blank" rel="noreferrer">
                   GitHub profile
@@ -224,64 +292,85 @@ export default function Page() {
         </SectionShell>
 
         <SectionShell
-          id="certifications"
+          id="global-certifications"
           eyebrow="Certifications"
-          title="Certifications"
-          lead="Global certificates are shown one at a time. Other certificates are grouped in a compact grid."
-          className="certificationsSection"
+          title={`Global certificates (${globalCertificates.length})`}
+          className="certificationsSection globalCertSection"
         >
-          <div className="dualGrid">
-            <CertificateCarousel
-              certificates={globalCertificates}
-              onOpen={(certificate) => {
-                setLightbox({
-                  title: certificate.title,
-                  subtitle: certificate.summary,
-                  src: certificatePdfUrl(certificate.fileName),
-                });
-              }}
-            />
+          <CertificateCarousel
+            certificates={globalCertificates}
+            onOpen={(certificate: CertificateItem) => {
+              setLightbox({
+                title: certificate.title,
+                subtitle: certificate.summary,
+                src: certificatePdfUrl(certificate.fileName),
+              });
+            }}
+          />
+        </SectionShell>
 
-            <div className="glassPanel panelInset">
-              <div className="projectHeader">
-                <div>
-                  <div className="sectionEyebrow">Other certifications</div>
-                  <h3 className="cardTitle" style={{ fontSize: "clamp(1.9rem, 2.6vw, 2.7rem)" }}>
-                    Additional certificates.
-                  </h3>
-                </div>
-                <div className="carouselIndex">{String(otherCertificates.length).padStart(2, "0")}</div>
-              </div>
+        <SectionShell
+          id="other-certifications"
+          eyebrow="Certifications"
+          title={`Other certificates (${otherCertificates.length})`}
+          className="otherCertSection"
+        >
+          <div className="glassPanel panelInset otherCertPager">
+            <div className="projectHeader">
+              <h3 className="cardTitle" style={{ fontSize: "clamp(1.9rem, 2.6vw, 2.7rem)" }}>
+                {String(otherCertPage + 1).padStart(2, "0")} / {String(Math.max(otherCertificatePages.length, 1)).padStart(2, "0")}
+              </h3>
+              <div className="carouselIndex">{otherCertificates.length}</div>
+            </div>
 
-              <div className="certGrid">
-                {otherCertificates.map((certificate) => {
-                  const src = certificatePdfUrl(certificate.fileName);
-                  return (
-                    <button
-                      key={certificate.fileName}
-                      type="button"
-                      className="certTile"
-                      onClick={() => setLightbox({ title: certificate.title, subtitle: certificate.issuer, src })}
-                    >
-                      <PdfPreview src={src} alt={certificate.title} className="certTilePreview" scale={0.95} />
-                      <div className="certTileContent">
-                        <div className="sequenceBadge">{certificate.issuer}</div>
-                        <h4 className="certTileTitle">{certificate.title}</h4>
-                        <div className="certTileIssuer">Click to preview</div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+            <div className="certGrid certGridPaged">
+              {(otherCertificatePages[otherCertPage] ?? []).map((certificate) => {
+                const src = certificatePdfUrl(certificate.fileName);
+                return (
+                  <button
+                    key={certificate.fileName}
+                    type="button"
+                    className="certTile"
+                    onClick={() => setLightbox({ title: certificate.title, subtitle: certificate.issuer, src })}
+                  >
+                    <PdfPreview src={src} alt={certificate.title} className="certTilePreview" scale={1.05} />
+                    <div className="certTileContent">
+                      <h4 className="certTileTitle">{certificate.title}</h4>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="carouselControls">
+              <button
+                className="buttonAlt navButton"
+                type="button"
+                onClick={() => setOtherCertPage((value) => (value - 1 + otherCertificatePages.length) % otherCertificatePages.length)}
+                aria-label="Previous certificate page"
+                disabled={otherCertificatePages.length <= 1}
+              >
+                <ChevronLeft size={16} />
+                Previous
+              </button>
+              <button
+                className="buttonAlt navButton"
+                type="button"
+                onClick={() => setOtherCertPage((value) => (value + 1) % otherCertificatePages.length)}
+                aria-label="Next certificate page"
+                disabled={otherCertificatePages.length <= 1}
+              >
+                Next
+                <ChevronRight size={16} />
+              </button>
             </div>
           </div>
         </SectionShell>
 
         <SectionShell
           id="awards"
-          eyebrow="Awards / Events"
-          title="Awards and events"
-          lead="Recognition and event participation are presented in a simple timeline."
+          eyebrow="Awards"
+          title="Awards and membership"
         >
           <div className="sectionGrid">
             <div className="glassPanel panelInset">
@@ -297,17 +386,13 @@ export default function Page() {
               </div>
             </div>
             <div className="glassPanel panelInset">
-              <div className="sectionEyebrow">Highlights</div>
+              <div className="sectionEyebrow">Membership</div>
               <h3 className="cardTitle" style={{ fontSize: "clamp(1.9rem, 2.6vw, 2.7rem)" }}>
-                A clear record of achievement.
+                {membership.title}
               </h3>
-              <p className="sectionLead" style={{ marginTop: 12 }}>
-                Awards are kept concise so the information stays easy to scan.
-              </p>
-              <div className="tagRow" style={{ marginTop: 18 }}>
-                <span className="tag">NPTEL</span>
-                <span className="tag">Discipline star</span>
-                <span className="tag">Jul-Dec 2025</span>
+              <div className="smallCaption" style={{ marginTop: 10 }}>{membership.organization}</div>
+              <div style={{ marginTop: 16 }}>
+                <PdfPreview src={membershipPdfUrl(membership.fileName)} alt={membership.title} className="panelInset certificatePreviewShell" scale={1.7} />
               </div>
             </div>
           </div>
@@ -317,7 +402,6 @@ export default function Page() {
           id="education"
           eyebrow="Education"
           title="Education"
-          lead="Academic history is arranged in a concise timeline for quick review."
         >
           <div className="sectionGrid">
             <div className="glassPanel panelInset">
@@ -333,7 +417,6 @@ export default function Page() {
               </div>
             </div>
             <div className="glassPanel panelInset">
-              <div className="sectionEyebrow">Academic summary</div>
               <h3 className="cardTitle" style={{ fontSize: "clamp(1.9rem, 2.6vw, 2.7rem)" }}>
                 Consistent academic performance.
               </h3>
@@ -375,7 +458,6 @@ export default function Page() {
           id="internships"
           eyebrow="Internships"
           title="Internships"
-          lead="Practical experience is presented with clear hierarchy and spacing."
         >
           <div className="sectionGrid">
             <div className="glassPanel panelInset">
@@ -391,13 +473,9 @@ export default function Page() {
               </div>
             </div>
             <div className="glassPanel panelInset">
-              <div className="sectionEyebrow">Experience summary</div>
               <h3 className="cardTitle" style={{ fontSize: "clamp(1.9rem, 2.6vw, 2.7rem)" }}>
                 Applied AI, delivery, and collaboration.
               </h3>
-              <p className="sectionLead" style={{ marginTop: 12 }}>
-                The internship record covers ML work, AI programs, and event coordination.
-              </p>
               <div className="tagRow" style={{ marginTop: 18 }}>
                 <span className="tag">AICTE</span>
                 <span className="tag">IBM SkillsBuild</span>
@@ -412,16 +490,12 @@ export default function Page() {
           id="contact"
           eyebrow="Contact"
           title="Contact"
-          lead="Direct links and contact details are grouped in one place."
           className="contactSection"
         >
           <div className="glassPanel panelInset">
             <div className="contactGrid">
               <div>
                 <h3 className="contactTitle">Let&apos;s build the next serious interface.</h3>
-                <p className="contactLead">
-                  Available for collaborations, portfolio reviews, backend work, and AI-focused projects.
-                </p>
                 <div className="buttonRow" style={{ marginTop: 22 }}>
                   {contactLinks.map((link) => (
                     <a
@@ -473,6 +547,10 @@ export default function Page() {
                   <div className="profileLinkGrid">
                     {codingProfiles.map((profile) => (
                       <a key={profile.label} className="profileLinkCard" href={profile.href} target="_blank" rel="noreferrer">
+                        {(() => {
+                          const Icon = getProfileIcon(profile.label);
+                          return <Icon size={18} />;
+                        })()}
                         <span className="profileLinkLabel">{profile.label}</span>
                         <strong className="profileLinkValue">{profile.value}</strong>
                       </a>

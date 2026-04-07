@@ -8,7 +8,6 @@ const INTRO = { start: 1, end: 112 };
 const LOOP = { start: 113, end: 193 };
 const OUTRO = { start: 194, end: 300 };
 
-const LOOP_DRIFT = 0.022;
 const PRELOAD_WINDOW = 4;
 
 const cache = new Map<string, HTMLImageElement>();
@@ -61,8 +60,8 @@ export default function SequenceBackdrop() {
   const activeFrameRef = useRef(1);
   const activeImageRef = useRef<HTMLImageElement | null>(null);
   const rafRef = useRef<number | null>(null);
+  const drawPendingRef = useRef(false);
   const sizeRef = useRef({ width: 0, height: 0, scale: 1 });
-  const startedRef = useRef(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -79,7 +78,6 @@ export default function SequenceBackdrop() {
     if (!context) return;
 
     let cancelled = false;
-    let startTime = 0;
 
     const resize = () => {
       const scale = Math.min(window.devicePixelRatio || 1, 2.25);
@@ -115,13 +113,8 @@ export default function SequenceBackdrop() {
       }
     };
 
-    const update = (timestamp: number) => {
+    const readActiveFrame = () => {
       if (cancelled) return;
-
-      if (!startedRef.current) {
-        startedRef.current = true;
-        startTime = timestamp;
-      }
 
       const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-scene]"));
       const viewportCenter = window.innerHeight * 0.5;
@@ -144,7 +137,6 @@ export default function SequenceBackdrop() {
       });
 
       const scene = scenes[sceneIndex] ?? scenes[0];
-      const elapsed = (timestamp - startTime) / 1000;
       let nextFrame = activeFrameRef.current;
 
       if (scene.kind === "intro") {
@@ -155,7 +147,7 @@ export default function SequenceBackdrop() {
         nextFrame = OUTRO.start + Math.floor(sceneProgress * range);
       } else {
         const range = LOOP.end - LOOP.start + 1;
-        const virtualProgress = scene.segmentIndex + sceneProgress + elapsed * LOOP_DRIFT;
+        const virtualProgress = scene.segmentIndex + sceneProgress;
         const loopStep = ((Math.floor(virtualProgress * range) % range) + range) % range;
         nextFrame = LOOP.start + loopStep;
       }
@@ -171,14 +163,23 @@ export default function SequenceBackdrop() {
       for (let frame = preloadStart; frame <= preloadEnd; frame += 1) {
         preload(frame);
       }
+    };
 
-      rafRef.current = window.requestAnimationFrame(update);
+    const scheduleRender = () => {
+      if (drawPendingRef.current) return;
+
+      drawPendingRef.current = true;
+      rafRef.current = window.requestAnimationFrame(() => {
+        drawPendingRef.current = false;
+        readActiveFrame();
+      });
     };
 
     resize();
     draw(activeFrameRef.current);
     window.addEventListener("resize", resize, { passive: true });
-    rafRef.current = window.requestAnimationFrame(update);
+    window.addEventListener("scroll", scheduleRender, { passive: true });
+    scheduleRender();
 
     return () => {
       cancelled = true;
@@ -186,6 +187,7 @@ export default function SequenceBackdrop() {
         window.cancelAnimationFrame(rafRef.current);
       }
       window.removeEventListener("resize", resize);
+      window.removeEventListener("scroll", scheduleRender);
     };
   }, [mounted]);
 

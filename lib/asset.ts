@@ -16,5 +16,13 @@ export function resumePdfUrl() {
 }
 
 export function certificatePdfUrl(fileName: string) {
-  return assetUrl(["my", "certificates", fileName]);
+  return assetUrl(["my", "CERTIFICATES", fileName]);
+}
+
+export function globalCertificatePdfUrl(fileName: string) {
+  return assetUrl(["my", "CERTIFICATES", "GLOBAL", fileName]);
+}
+
+export function membershipPdfUrl(fileName: string) {
+  return assetUrl(["my", "MEMBERSHIP", fileName]);
 }

@@ -143,7 +143,7 @@ a {
 .pageContent {
   position: relative;
   z-index: 2;
-  width: min(1600px, calc(100vw - 24px));
+  width: min(1480px, calc(100vw - 48px));
   margin: 0 auto;
   padding: 0 0 64px;
 }
@@ -152,6 +152,7 @@ a {
   min-height: 100svh;
   display: flex;
   align-items: center;
+  padding-inline: clamp(24px, 4vw, 72px);
 }
 
 .heroSection .sectionInner {
@@ -212,19 +213,23 @@ a {
 .sectionShell {
   position: relative;
   min-height: 100svh;
-  padding: 84px 0;
+  padding: clamp(28px, 3vh, 44px) 0;
+  display: flex;
+  align-items: center;
   scroll-snap-align: start;
+  overflow: clip;
 }
 
 .sectionInner {
   display: grid;
-  gap: 28px;
+  gap: 18px;
+  width: 100%;
 }
 
 .sectionHeader {
   display: grid;
-  gap: 12px;
-  max-width: 760px;
+  gap: 8px;
+  max-width: 700px;
 }
 
 .sectionEyebrow {
@@ -237,7 +242,7 @@ a {
 .sectionTitle {
   margin: 0;
   font-family: var(--font-playfair), Georgia, serif;
-  font-size: clamp(2.4rem, 4vw, 4.2rem);
+  font-size: clamp(2rem, 3vw, 3.4rem);
   line-height: 0.95;
   letter-spacing: -0.04em;
 }
@@ -246,8 +251,8 @@ a {
   margin: 0;
   max-width: 72ch;
   color: var(--muted);
-  font-size: clamp(1rem, 1.45vw, 1.2rem);
-  line-height: 1.8;
+  font-size: clamp(0.92rem, 1.05vw, 1.05rem);
+  line-height: 1.55;
 }
 
 .glassPanel {
@@ -257,6 +262,10 @@ a {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.05));
   backdrop-filter: blur(30px) saturate(160%);
   box-shadow: var(--shadow);
+  transform: perspective(1300px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateY(0);
+  transform-style: preserve-3d;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  will-change: transform;
 }
 
 .glassPanel::before {
@@ -273,12 +282,30 @@ a {
   pointer-events: none;
 }
 
+.glassPanel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at var(--sheen-x, 50%) var(--sheen-y, 50%), rgba(255, 255, 255, 0.14), transparent 34%),
+    linear-gradient(145deg, rgba(34, 211, 238, 0.08), transparent 42%, rgba(139, 92, 246, 0.08));
+  opacity: 0.85;
+  mix-blend-mode: screen;
+}
+
+.glassPanel:hover {
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
 .heroGrid {
   display: grid;
-  gap: 28px;
+  gap: 20px;
   grid-template-columns: 1.15fr 0.85fr;
   align-items: center;
-  min-height: calc(100svh - 120px);
+  min-height: calc(100svh - 72px);
 }
 
 .heroCopy,
@@ -288,7 +315,7 @@ a {
 .timelineCard,
 .panelInset,
 .fullWidthPanel {
-  padding: clamp(20px, 2vw, 32px);
+  padding: clamp(16px, 1.8vw, 24px);
 }
 
 .heroKicker {
@@ -302,7 +329,7 @@ a {
 .heroTitle {
   margin: 0;
   font-family: var(--font-playfair), Georgia, serif;
-  font-size: clamp(4rem, 7vw, 5.6rem);
+  font-size: clamp(3.2rem, 5.4vw, 4.8rem);
   line-height: 0.9;
   letter-spacing: -0.05em;
 }
@@ -316,7 +343,7 @@ a {
   margin: 18px 0 0;
   max-width: 28ch;
   font-family: var(--font-cormorant), Georgia, serif;
-  font-size: clamp(1.5rem, 2.4vw, 2.2rem);
+  font-size: clamp(1.2rem, 1.9vw, 1.8rem);
   line-height: 1.1;
   color: rgba(248, 250, 252, 0.92);
 }
@@ -325,8 +352,8 @@ a {
   margin: 18px 0 0;
   max-width: 60ch;
   color: var(--muted);
-  font-size: clamp(1rem, 1.2vw, 1.15rem);
-  line-height: 1.85;
+  font-size: clamp(0.92rem, 1vw, 1.05rem);
+  line-height: 1.6;
 }
 
 .heroActions,
@@ -380,8 +407,8 @@ a {
 
 .heroMeta {
   display: grid;
-  gap: 16px;
-  margin-top: 30px;
+  gap: 12px;
+  margin-top: 20px;
 }
 
 .statGrid {
@@ -391,7 +418,7 @@ a {
 }
 
 .statCard {
-  padding: 16px;
+  padding: 12px 14px;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(8, 14, 26, 0.45);
@@ -400,7 +427,7 @@ a {
 .statValue {
   display: block;
   font-family: var(--font-playfair), Georgia, serif;
-  font-size: clamp(1.7rem, 2.8vw, 2.2rem);
+  font-size: clamp(1.45rem, 2.2vw, 1.95rem);
   line-height: 1;
 }
 
@@ -418,12 +445,12 @@ a {
   display: grid;
   place-items: center;
   gap: 18px;
-  min-height: 640px;
+  min-height: 540px;
 }
 
 .profileImageWrap {
   position: relative;
-  width: min(100%, 420px);
+  width: min(100%, 360px);
   aspect-ratio: 3 / 4;
   overflow: hidden;
   border-radius: 30px;
@@ -453,7 +480,7 @@ a {
   justify-content: space-between;
   gap: 12px;
   color: var(--muted);
-  font-size: 0.88rem;
+  font-size: 0.8rem;
 }
 
 .sectionGrid,
@@ -465,6 +492,19 @@ a {
 .sectionGrid {
   grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
   align-items: start;
+}
+
+.globalCertSection .sectionInner,
+.otherCertSection .sectionInner {
+  max-width: 1500px;
+}
+
+.globalCertSection {
+  padding-bottom: clamp(20px, 2vh, 32px);
+}
+
+.otherCertSection {
+  padding-top: clamp(20px, 2vh, 32px);
 }
 
 .certificationsSection .dualGrid {
@@ -555,25 +595,25 @@ a {
 }
 
 .carouselFrame {
-  min-height: 520px;
+  min-height: 440px;
 }
 
 .certificateStage {
-  min-height: clamp(760px, 86svh, 980px);
+  min-height: min(100svh, 860px);
 }
 
 .certificateStage .carouselViewport {
   display: grid;
   align-content: start;
-  gap: 16px;
+  gap: 12px;
 }
 
 .certificateStage .certificatePreviewShell {
-  min-height: clamp(520px, 64svh, 760px);
+  min-height: clamp(380px, 48svh, 560px);
 }
 
 .certificateStage .pdfPreview {
-  min-height: clamp(520px, 64svh, 760px);
+  min-height: clamp(380px, 48svh, 560px);
   display: grid;
   place-items: center;
 }
@@ -594,7 +634,7 @@ a {
   justify-content: space-between;
   gap: 12px;
   align-items: center;
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 .carouselIndex {
@@ -602,6 +642,11 @@ a {
   font: 600 0.82rem/1 var(--font-space-grotesk), system-ui, sans-serif;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+.certificateMeta {
+  display: grid;
+  gap: 8px;
 }
 
 .pdfPreview {
@@ -621,15 +666,19 @@ a {
 
 .certGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.certGridPaged {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .certTile {
   display: grid;
-  grid-template-rows: minmax(180px, 1fr) auto;
+  grid-template-rows: minmax(150px, 1fr) auto;
   gap: 0;
-  min-height: 320px;
+  min-height: 240px;
   padding: 0;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -639,8 +688,8 @@ a {
 }
 
 .certTilePreview {
-  min-height: 180px;
-  padding: 12px;
+  min-height: 128px;
+  padding: 10px;
 }
 
 .certTilePreview .pdfPreview {
@@ -655,8 +704,8 @@ a {
 
 .certTileContent {
   display: grid;
-  gap: 10px;
-  padding: 16px 16px 18px;
+  gap: 8px;
+  padding: 14px 14px 16px;
 }
 
 .certTileTitle {
@@ -672,13 +721,13 @@ a {
 
 .timelineList {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .timelineItem {
   display: grid;
   gap: 8px;
-  padding: 18px 20px;
+  padding: 14px 16px;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(8, 13, 26, 0.4);
@@ -710,7 +759,7 @@ a {
 .contactTitle {
   margin: 0;
   font-family: var(--font-playfair), Georgia, serif;
-  font-size: clamp(3.2rem, 6vw, 4.8rem);
+  font-size: clamp(2.6rem, 4.8vw, 4rem);
   line-height: 0.92;
 }
 
@@ -741,12 +790,16 @@ a {
 .profileLinkCard {
   display: grid;
   gap: 8px;
-  min-height: 90px;
-  padding: 14px 16px;
+  min-height: 78px;
+  padding: 12px 14px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(8, 13, 26, 0.4);
   transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.profileLinkCard svg {
+  color: var(--cyan);
 }
 
 .profileLinkCard:hover {
@@ -771,7 +824,7 @@ a {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  padding: 16px 18px;
+  padding: 12px 14px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(8, 13, 26, 0.4);
@@ -828,6 +881,10 @@ a {
   font-size: 0.82rem;
 }
 
+.contactLead {
+  display: none;
+}
+
 @media (max-width: 1100px) {
   .heroGrid,
   .sectionGrid,
@@ -849,7 +906,7 @@ a {
   }
 
   .pageContent {
-    width: min(100vw - 20px, 1480px);
+    width: min(100vw - 14px, 1480px);
   }
 }
 
@@ -859,7 +916,7 @@ a {
   }
 
   .sectionShell {
-    padding: 68px 0;
+    padding: 34px 0;
   }
 
   .heroGrid {
@@ -867,7 +924,44 @@ a {
   }
 
   .profileCard {
-    min-height: 480px;
+    min-height: 420px;
+  }
+
+  .heroCopy,
+  .heroPortrait,
+  .sectionCard,
+  .projectCard,
+  .timelineCard,
+  .panelInset,
+  .fullWidthPanel {
+    padding: 14px;
+  }
+
+  .heroTitle {
+    font-size: clamp(2.7rem, 12vw, 3.8rem);
+  }
+
+  .heroSubtitle {
+    font-size: clamp(1.05rem, 5vw, 1.45rem);
+  }
+
+  .sectionTitle {
+    font-size: clamp(1.8rem, 8vw, 2.8rem);
+  }
+
+  .contactTitle {
+    font-size: clamp(2.2rem, 10vw, 3.2rem);
+  }
+
+  .sectionLead,
+  .heroDescription,
+  .timelineBody,
+  .smallCaption {
+    line-height: 1.5;
+  }
+
+  .certGridPaged {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .certGrid,
@@ -887,7 +981,15 @@ a {
 
   .certificateStage .certificatePreviewShell,
   .certificateStage .pdfPreview {
-    min-height: 440px;
+    min-height: 340px;
+  }
+
+  .certTile {
+    min-height: 200px;
+  }
+
+  .certTilePreview {
+    min-height: 100px;
   }
 
   .navRail {

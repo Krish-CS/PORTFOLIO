@@ -36,7 +36,8 @@ export type LinkItem = {
 export const navigation = [
   { id: "hero", label: "Home" },
   { id: "projects", label: "Projects" },
-  { id: "certifications", label: "Certifications" },
+  { id: "global-certifications", label: "Global Certs" },
+  { id: "other-certifications", label: "Other Certs" },
   { id: "awards", label: "Awards" },
   { id: "education", label: "Education" },
   { id: "internships", label: "Internships" },
@@ -46,10 +47,11 @@ export const navigation = [
 export const scenes: SceneDefinition[] = [
   { id: "hero", title: "Hero", kind: "intro", segmentIndex: 0 },
   { id: "projects", title: "Projects", kind: "loop", segmentIndex: 0 },
-  { id: "certifications", title: "Certifications", kind: "loop", segmentIndex: 1 },
-  { id: "awards", title: "Awards", kind: "loop", segmentIndex: 2 },
-  { id: "education", title: "Education", kind: "loop", segmentIndex: 3 },
-  { id: "internships", title: "Internships", kind: "loop", segmentIndex: 4 },
+  { id: "global-certifications", title: "Global Certifications", kind: "loop", segmentIndex: 1 },
+  { id: "other-certifications", title: "Other Certifications", kind: "loop", segmentIndex: 2 },
+  { id: "awards", title: "Awards", kind: "loop", segmentIndex: 3 },
+  { id: "education", title: "Education", kind: "loop", segmentIndex: 4 },
+  { id: "internships", title: "Internships", kind: "loop", segmentIndex: 5 },
   { id: "contact", title: "Contact", kind: "outro", segmentIndex: 0 },
 ];
 
@@ -231,6 +233,13 @@ export const awards: TimelineItem[] = [
     details: "Recognition for consistent performance and academic discipline in the NPTEL track.",
   },
 ];
+
+export const membership = {
+  title: "IEIESC membership",
+  organization: "Institution of Electronics and Telecommunication Engineers",
+  fileName: "IEIESC.pdf",
+  summary: "Institutional membership document kept alongside the portfolio evidence.",
+};
 
 export const education: TimelineItem[] = [
   {
