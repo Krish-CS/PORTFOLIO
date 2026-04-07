@@ -4,6 +4,7 @@ import path from "path";
 const ROOT = process.cwd();
 const VALID_ROOTS = new Map([
   ["backgrounds", path.join(ROOT, "BACKGROUNDS")],
+  ["project-photos", path.join(ROOT, "PROJECT PHOTOS")],
   ["my", path.join(ROOT, "MY")],
 ]);
 
@@ -21,19 +22,11 @@ function getContentType(fileName: string) {
 }
 
 async function renderPdfPreview(pdfPath: string) {
-  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  const { createCanvas } = await import("@napi-rs/canvas");
-  const arrayBuffer = await fs.readFile(pdfPath);
-  const loadingTask = pdfjs.getDocument({ data: arrayBuffer, stopAtErrors: false });
-  const document = await loadingTask.promise;
-  const page = await document.getPage(1);
-  const viewport = page.getViewport({ scale: 2.2 });
-  const canvas = createCanvas(Math.ceil(viewport.width), Math.ceil(viewport.height));
-  const context = canvas.getContext("2d") as unknown as CanvasRenderingContext2D;
+  const { pdf } = await import("pdf-to-img");
+  const document = await pdf(pdfPath, { scale: 2.2 });
+  const preview = await document.getPage(1);
 
-  await page.render({ canvasContext: context, viewport }).promise;
-
-  return await canvas.encode("png");
+  return new Uint8Array(preview);
 }
 
 export async function GET(
@@ -43,18 +36,26 @@ export async function GET(
   const url = new URL(request.url);
   const wantsPreview = url.searchParams.get("preview") === "1";
   const { path: segments } = await params;
-  if (!segments.length) {
+  const decodedSegments = segments.map((segment) => {
+    try {
+      return decodeURIComponent(segment);
+    } catch {
+      return segment;
+    }
+  });
+
+  if (!decodedSegments.length) {
     return new Response("Not found", { status: 404 });
   }
 
-  const [rootKey, ...rest] = segments.map((segment) => segment.toLowerCase());
+  const [rootKey, ...rest] = decodedSegments.map((segment) => segment.toLowerCase());
   const basePath = VALID_ROOTS.get(rootKey);
 
   if (!basePath || rest.length === 0) {
     return new Response("Not found", { status: 404 });
   }
 
-  const actualSegments = segments.slice(1);
+  const actualSegments = decodedSegments.slice(1);
   const filePath = path.join(basePath, ...actualSegments);
   const normalizedBase = path.normalize(basePath + path.sep);
   const normalizedFile = path.normalize(filePath);
@@ -66,7 +67,7 @@ export async function GET(
   try {
     if (wantsPreview && normalizedFile.toLowerCase().endsWith(".pdf")) {
       const preview = await renderPdfPreview(normalizedFile);
-      return new Response(new Uint8Array(preview), {
+      return new Response(preview, {
         headers: {
           "Content-Type": "image/png",
           "Cache-Control": "public, max-age=31536000, immutable",

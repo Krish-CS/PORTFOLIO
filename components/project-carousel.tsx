@@ -1,9 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
-import { useState } from "react";
+import { ExternalLink } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import type { Project } from "../lib/content";
+import { assetUrl } from "../lib/asset";
 
 type ProjectCarouselProps = {
   projects: Project[];
@@ -11,13 +12,42 @@ type ProjectCarouselProps = {
 
 export default function ProjectCarousel({ projects }: ProjectCarouselProps) {
   const [index, setIndex] = useState(0);
+  const [missingPhotos, setMissingPhotos] = useState<Record<string, boolean>>({});
+  const sectionRef = useRef<HTMLDivElement | null>(null);
   const current = projects[index];
 
-  const next = () => setIndex((value) => (value + 1) % projects.length);
-  const previous = () => setIndex((value) => (value - 1 + projects.length) % projects.length);
+  useEffect(() => {
+    let deltaBuffer = 0;
+    let locked = false;
+
+    const onWheel = (event: WheelEvent) => {
+      const section = sectionRef.current;
+      if (!section) return;
+
+      const rect = section.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const isActive = rect.top < vh * 0.72 && rect.bottom > vh * 0.28;
+      if (!isActive) return;
+
+      deltaBuffer += event.deltaY;
+      if (locked || Math.abs(deltaBuffer) < 120) return;
+
+      const direction = deltaBuffer > 0 ? 1 : -1;
+      deltaBuffer = 0;
+      locked = true;
+      setIndex((value) => (value + direction + projects.length) % projects.length);
+
+      window.setTimeout(() => {
+        locked = false;
+      }, 420);
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: true });
+    return () => window.removeEventListener("wheel", onWheel);
+  }, [projects.length]);
 
   return (
-    <div className="glassPanel carouselFrame panelInset">
+    <div ref={sectionRef} className="glassPanel carouselFrame panelInset">
       <div className="projectHeader">
         <div>
           <h3 className="cardTitle">Projects</h3>
@@ -31,9 +61,9 @@ export default function ProjectCarousel({ projects }: ProjectCarouselProps) {
         <AnimatePresence mode="wait">
           <motion.article
             key={current.title}
-            initial={{ opacity: 0, y: 24, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
+            initial={{ opacity: 0, x: 36, y: 12, rotateY: -18, scale: 0.98, filter: "blur(10px)" }}
+            animate={{ opacity: 1, x: 0, y: 0, rotateY: 0, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, x: -32, y: -10, rotateY: 18, scale: 0.98, filter: "blur(8px)" }}
             transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
             className="projectCard glassPanel"
             style={{ minHeight: 360 }}
@@ -47,6 +77,22 @@ export default function ProjectCarousel({ projects }: ProjectCarouselProps) {
               <div className="cardMeta" style={{ textAlign: "right", maxWidth: 260 }}>
                 {current.description}
               </div>
+            </div>
+
+            <div className="projectPhotoFrame">
+              {current.photoName && !missingPhotos[current.title] ? (
+                <img
+                  src={assetUrl(["project-photos", current.photoName])}
+                  alt={current.title}
+                  className="projectPhoto"
+                  loading="lazy"
+                  onError={() => {
+                    setMissingPhotos((value) => ({ ...value, [current.title]: true }));
+                  }}
+                />
+              ) : (
+                <div className="projectPhotoPlaceholder" aria-hidden="true" />
+              )}
             </div>
 
             <div className="tagRow" style={{ marginBottom: 20 }}>
@@ -67,17 +113,6 @@ export default function ProjectCarousel({ projects }: ProjectCarouselProps) {
             </div>
           </motion.article>
         </AnimatePresence>
-      </div>
-
-      <div className="carouselControls">
-        <button className="buttonAlt navButton" type="button" onClick={previous} aria-label="Previous project">
-          <ChevronLeft size={16} />
-          Previous
-        </button>
-        <button className="buttonAlt navButton" type="button" onClick={next} aria-label="Next project">
-          Next
-          <ChevronRight size={16} />
-        </button>
       </div>
     </div>
   );

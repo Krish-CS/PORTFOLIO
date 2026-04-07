@@ -12,6 +12,7 @@ export type Project = {
   description: string;
   tags: string[];
   href?: string;
+  photoName?: string;
 };
 
 export type CertificateItem = {
@@ -77,6 +78,7 @@ export const featuredProjects: Project[] = [
       "Safety-first edge protection workflow with alerting logic and a fast-action interface for critical situations.",
     tags: ["Safety", "Edge logic", "Real-time alerts"],
     href: "https://github.com/Krish-CS/MEDUSA-WOMEN-SAFETY-APPLICATION",
+    photoName: "MEDUSA.png",
   },
   {
     title: "SkillShare - Skill Marketplace and Opportunity Platform",
@@ -84,6 +86,7 @@ export const featuredProjects: Project[] = [
       "Marketplace-style platform for connecting learning demand with teachable skills and visible opportunities.",
     tags: ["Marketplace", "Discovery", "Opportunity flow"],
     href: "https://github.com/Krish-CS/SKILLSHARE",
+    photoName: "SKILLSHARE.png",
   },
   {
     title: "Krish Mind AI - Personalized AI Assistant",
@@ -91,24 +94,35 @@ export const featuredProjects: Project[] = [
       "Personal assistant concept focused on responsive AI interaction and practical productivity support.",
     tags: ["AI", "Assistant", "Automation"],
     href: "https://cassandra-ai.onrender.com/",
+    photoName: "CASSANDRA.png",
   },
   {
-    title: "Expense Tracker with GUI",
-    description:
-      "A desktop-style expense tracker designed to keep personal finance input simple, visual, and organized.",
-    tags: ["Finance", "GUI", "Tracking"],
+    title: "Automated Report Generation",
+    description: "Automated reporting workflow for structured output and repeatable analysis.",
+    tags: ["Automation", "Reports", "Python"],
+    href: "https://github.com/Krish-CS/AUTOMATED-REPORT-GENERATION",
+    photoName: "AUTOMATED-REPORT-GENERATION.png",
   },
   {
-    title: "Job Priority Storage Using Trees",
-    description:
-      "Tree-based priority storage for structured retrieval and cleaner task ordering.",
-    tags: ["Data structures", "Priority", "Retrieval"],
+    title: "API Integration and Data Visualization",
+    description: "Integration-focused project centered on data presentation and clean API flow.",
+    tags: ["API", "Visualization", "Data"],
+    href: "https://github.com/Krish-CS/API-INTEGRATION-AND-DATA-VISUALIZATION",
+    photoName: "API-INTEGRATION-AND-DATA-VISUALIZATION.png",
   },
   {
-    title: "Rhythmic - Music Menu Driver",
-    description:
-      "Music navigation concept centered on menu flow and deliberate interaction states.",
-    tags: ["Music", "Interaction", "Menu flow"],
+    title: "Water Quality Prediction",
+    description: "Prediction-oriented ML project focused on environmental measurement inputs.",
+    tags: ["ML", "Prediction", "Environment"],
+    href: "https://github.com/Krish-CS/WaterQualityPrediction",
+    photoName: "WaterQualityPrediction.png",
+  },
+  {
+    title: "Question Mind",
+    description: "Question-driven assistant workflow built around retrieval and response handling.",
+    tags: ["NLP", "Assistant", "Search"],
+    href: "https://github.com/Krish-CS/QUESTION-MIND",
+    photoName: "QUESTION-MIND.png",
   },
 ];
 

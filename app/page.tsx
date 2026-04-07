@@ -1,53 +1,67 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
   BookOpen,
-  BriefcaseBusiness,
   Code2,
-  ChevronLeft,
-  ChevronRight,
   ExternalLink,
+  FileText,
   GraduationCap,
   Mail,
   MapPin,
   Phone,
   Sparkles,
-  FileText,
   Trophy,
   Users,
 } from "lucide-react";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 import SequenceBackdrop from "../components/sequence-backdrop";
-import ProjectCarousel from "../components/project-carousel";
-import CertificateCarousel from "../components/certificate-carousel";
 import PdfPreview from "../components/pdf-preview";
 import PdfLightbox from "../components/pdf-lightbox";
 import {
-  aboutBullets,
   awards,
-  codingProfiles,
   contactLinks,
   education,
   featuredProjects,
   globalCertificates,
   heroCopy,
   internships,
-  navigation,
   membership,
   otherCertificates,
   profileStats,
   type CertificateItem,
+  type Project,
 } from "../lib/content";
-import { certificatePdfUrl, globalCertificatePdfUrl, membershipPdfUrl, profilePhotoUrl } from "../lib/asset";
+import {
+  assetUrl,
+  certificatePdfUrl,
+  globalCertificatePdfUrl,
+  membershipPdfUrl,
+  profilePhotoUrl,
+} from "../lib/asset";
 
 type LightboxState = {
   title: string;
   subtitle?: string;
   src: string;
 } | null;
+
+type NavItem = {
+  id: string;
+  target: string;
+  label: string;
+};
+
+const projectMotionPresets = [
+  { x: 120, y: 14, rotate: -4, scale: 0.96 },
+  { x: -120, y: -10, rotate: 4, scale: 0.96 },
+  { x: 0, y: 110, rotate: -2, scale: 0.95 },
+  { x: 0, y: -96, rotate: 2, scale: 0.95 },
+  { x: 84, y: 56, rotate: -3, scale: 0.96 },
+  { x: -88, y: -52, rotate: 3, scale: 0.96 },
+];
 
 function SectionShell({
   id,
@@ -69,10 +83,10 @@ function SectionShell({
       id={id}
       data-scene
       className={`sectionShell ${className}`.trim()}
-      initial={{ opacity: 0, x: 28 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, amount: 0.32 }}
-      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, x: 56, y: 10 }}
+      whileInView={{ opacity: 1, x: 0, y: 0 }}
+      viewport={{ once: false, amount: 0.62 }}
+      transition={{ duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="sectionInner">
         <div className="sectionHeader">
@@ -86,12 +100,16 @@ function SectionShell({
   );
 }
 
-function getProfileIcon(label: string) {
-  if (label === "GitHub") return FaGithub;
-  if (label === "LinkedIn") return FaLinkedinIn;
-  if (label === "LeetCode") return Code2;
-  if (label === "HackerRank") return Trophy;
-  return FileText;
+function getContactIcon(label: string) {
+  const normalized = label.toLowerCase();
+
+  if (normalized.includes("github")) return <FaGithub size={18} />;
+  if (normalized.includes("linkedin")) return <FaLinkedinIn size={18} />;
+  if (normalized.includes("leetcode")) return <Code2 size={18} />;
+  if (normalized.includes("hackerrank")) return <Trophy size={18} />;
+  if (normalized.includes("resume")) return <FileText size={18} />;
+
+  return <ExternalLink size={18} />;
 }
 
 function chunkItems<T>(items: T[], chunkSize: number) {
@@ -104,12 +122,58 @@ function chunkItems<T>(items: T[], chunkSize: number) {
   return chunks;
 }
 
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function ProjectVisual({ project }: { project: Project }) {
+  const [failed, setFailed] = useState(false);
+  const src = project.photoName ? assetUrl(["project-photos", project.photoName]) : "";
+
+  return (
+    <div className="projectPhotoFrame">
+      {!failed && src ? (
+        <img
+          src={src}
+          alt={project.title}
+          className="projectPhoto"
+          loading="lazy"
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <div className="projectPhotoPlaceholder" aria-label="Project image placeholder" />
+      )}
+    </div>
+  );
+}
+
 export default function Page() {
   const [activeSection, setActiveSection] = useState("hero");
   const [lightbox, setLightbox] = useState<LightboxState>(null);
-  const [otherCertPage, setOtherCertPage] = useState(0);
 
-  const otherCertificatePages = chunkItems(otherCertificates, 4);
+  const otherCertificateChunks = useMemo(() => chunkItems(otherCertificates, 6), []);
+
+  const navItems: NavItem[] = useMemo(
+    () => [
+      { id: "hero", target: "hero", label: "Home" },
+      { id: "projects", target: "project-1", label: "Projects" },
+      { id: "global-certs", target: "global-cert-1", label: "Global certifications" },
+      { id: "other-certs", target: "other-certs-1", label: "Other certifications" },
+      { id: "awards", target: "awards", label: "Awards" },
+      { id: "education", target: "education", label: "Education" },
+      { id: "internships", target: "internship-1", label: "Internships" },
+      { id: "contact", target: "contact", label: "Contact" },
+    ],
+    [],
+  );
+
+  const activeNav = useMemo(() => {
+    if (activeSection.startsWith("project-")) return "projects";
+    if (activeSection.startsWith("global-cert-")) return "global-certs";
+    if (activeSection.startsWith("other-certs-")) return "other-certs";
+    if (activeSection.startsWith("internship-")) return "internships";
+    return activeSection;
+  }, [activeSection]);
 
   useEffect(() => {
     const observed = Array.from(document.querySelectorAll<HTMLElement>("[data-scene]"));
@@ -125,14 +189,64 @@ export default function Page() {
         }
       },
       {
-        threshold: [0.25, 0.4, 0.55, 0.7],
-        rootMargin: "-28% 0px -34% 0px",
+        threshold: [0.45, 0.62, 0.75],
+        rootMargin: "-18% 0px -18% 0px",
       },
     );
 
     observed.forEach((section) => observer.observe(section));
 
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    let frame = 0;
+
+    const applyViewportVars = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const longEdge = Math.max(width, height);
+      const shortEdge = Math.min(width, height);
+      const aspectRatio = width / Math.max(height, 1);
+      const baseScale = Math.min(width / 1920, height / 1080);
+      const tvBoost = longEdge >= 2200 && shortEdge >= 1100 ? 1.08 : 1;
+      const compactPenalty = aspectRatio < 1.45 ? 0.96 : 1;
+      const sceneScale = clamp(baseScale * tvBoost * compactPenalty, 0.82, 1.18);
+      const nav = document.querySelector<HTMLElement>(".navRail");
+      const navOffset = Math.ceil((nav?.getBoundingClientRect().height ?? 0) + 20);
+      const contentMax = Math.round(clamp(width * 0.9, 980, 1780));
+      const gutter = Math.round(clamp(width * 0.018, 10, 42));
+
+      root.style.setProperty("--app-vh", `${height * 0.01}px`);
+      root.style.setProperty("--app-vw", `${width * 0.01}px`);
+      root.style.setProperty("--scene-scale", sceneScale.toFixed(4));
+      root.style.setProperty("--scene-nav-offset", `${navOffset}px`);
+      root.style.setProperty("--scene-content-max", `${contentMax}px`);
+      root.style.setProperty("--scene-gutter", `${gutter}px`);
+    };
+
+    const scheduleUpdate = () => {
+      if (frame) {
+        cancelAnimationFrame(frame);
+      }
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        applyViewportVars();
+      });
+    };
+
+    applyViewportVars();
+    window.addEventListener("resize", scheduleUpdate, { passive: true });
+    window.addEventListener("orientationchange", scheduleUpdate, { passive: true });
+
+    return () => {
+      if (frame) {
+        cancelAnimationFrame(frame);
+      }
+      window.removeEventListener("resize", scheduleUpdate);
+      window.removeEventListener("orientationchange", scheduleUpdate);
+    };
   }, []);
 
   useEffect(() => {
@@ -143,8 +257,8 @@ export default function Page() {
       const rect = element.getBoundingClientRect();
       const x = (clientX - rect.left) / rect.width;
       const y = (clientY - rect.top) / rect.height;
-      const tiltX = ((0.5 - y) * 12).toFixed(2);
-      const tiltY = ((x - 0.5) * 12).toFixed(2);
+      const tiltX = ((0.5 - y) * 9).toFixed(2);
+      const tiltY = ((x - 0.5) * 9).toFixed(2);
 
       element.style.setProperty("--tilt-x", `${tiltX}deg`);
       element.style.setProperty("--tilt-y", `${tiltY}deg`);
@@ -186,11 +300,14 @@ export default function Page() {
       <SequenceBackdrop />
 
       <nav className="navRail" aria-label="Portfolio sections">
-        {navigation.map((item) => (
-          <a key={item.id} href={`#${item.id}`} className="navItem" style={{ position: "relative" }}>
-            <span className={`navDot ${activeSection === item.id ? "active" : ""}`} aria-hidden="true" />
-            <span className="navLabel">{item.label}</span>
-          </a>
+        {navItems.map((item) => (
+          <a
+            key={item.id}
+            href={`#${item.target}`}
+            className={`navItemDot ${activeNav === item.id ? "active" : ""}`}
+            aria-label={item.label}
+            title={item.label}
+          />
         ))}
       </nav>
 
@@ -206,8 +323,8 @@ export default function Page() {
           <div className="heroGrid">
             <motion.div
               className="glassPanel heroCopy"
-              initial={{ opacity: 0, x: -28 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.08 }}
             >
               <div className="heroKicker">Portfolio / projects / experience</div>
@@ -217,8 +334,8 @@ export default function Page() {
               </h1>
               <p className="heroSubtitle">{heroCopy.subtitle}</p>
               <p className="heroDescription">{heroCopy.description}</p>
-              <div className="heroActions" style={{ marginTop: 26 }}>
-                <a className="button primary" href="#projects">
+              <div className="heroActions" style={{ marginTop: 18 }}>
+                <a className="button primary" href="#project-1">
                   Explore work
                   <ArrowRight size={16} />
                 </a>
@@ -228,7 +345,7 @@ export default function Page() {
               </div>
               <div className="heroMeta">
                 <div className="statGrid">
-                  {profileStats.map((stat) => (
+                  {profileStats.slice(0, 2).map((stat) => (
                     <div key={stat.label} className="statCard">
                       <strong className="statValue">{stat.value}</strong>
                       <span className="statLabel">{stat.label}</span>
@@ -236,20 +353,13 @@ export default function Page() {
                   ))}
                 </div>
                 <div className="smallCaption">{heroCopy.location}</div>
-                <div className="tagRow">
-                  {aboutBullets.map((bullet) => (
-                    <span key={bullet} className="tag">
-                      {bullet}
-                    </span>
-                  ))}
-                </div>
               </div>
             </motion.div>
 
             <motion.div
               className="glassPanel heroPortrait"
-              initial={{ opacity: 0, x: 28, scale: 0.98 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.7, delay: 0.12 }}
             >
               <div className="profileCard">
@@ -266,112 +376,116 @@ export default function Page() {
           </div>
         </motion.section>
 
-        <SectionShell
-          id="projects"
-          eyebrow="Projects"
-          title="Selected work"
-          className="projectsSection"
-        >
-          <div className="sectionGrid">
-            <ProjectCarousel projects={featuredProjects} />
-            <div className="glassPanel panelInset">
-              <h3 className="cardTitle" style={{ fontSize: "clamp(1.9rem, 2.6vw, 2.7rem)" }}>
-                GitHub / live demos
-              </h3>
-              <div className="buttonRow" style={{ marginTop: 20 }}>
-                <a className="button primary" href="https://github.com/Krish-CS" target="_blank" rel="noreferrer">
-                  GitHub profile
-                  <ExternalLink size={16} />
-                </a>
-                <a className="buttonAlt" href="https://krish-cs.github.io/krish-repox-frontend/" target="_blank" rel="noreferrer">
-                  Live project
-                </a>
+        {featuredProjects.map((project, index) => {
+          const motionPreset = projectMotionPresets[index % projectMotionPresets.length];
+
+          return (
+            <SectionShell
+              key={project.title}
+              id={`project-${index + 1}`}
+              eyebrow={`Project ${index + 1}`}
+              title={project.title}
+              lead={project.description}
+              className="projectSceneSection"
+            >
+              <motion.div
+                className={`glassPanel panelInset projectSceneGrid ${index % 2 === 1 ? "reverse" : ""}`}
+                initial={{
+                  opacity: 0,
+                  x: motionPreset.x,
+                  y: motionPreset.y,
+                  rotate: motionPreset.rotate,
+                  scale: motionPreset.scale,
+                  filter: "blur(10px)",
+                }}
+                whileInView={{ opacity: 1, x: 0, y: 0, rotate: 0, scale: 1, filter: "blur(0px)" }}
+                viewport={{ once: false, amount: 0.56 }}
+                transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <div className="projectSceneInfo">
+                  <div className="tagRow">
+                    {project.tags.map((tag) => (
+                      <span key={tag} className="tag">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  {project.href ? (
+                    <a className="button primary" href={project.href} target="_blank" rel="noreferrer" style={{ marginTop: 16 }}>
+                      View project
+                      <ExternalLink size={16} />
+                    </a>
+                  ) : null}
+                </div>
+                <ProjectVisual project={project} />
+              </motion.div>
+            </SectionShell>
+          );
+        })}
+
+        {globalCertificates.map((certificate, index) => (
+          <SectionShell
+            key={certificate.fileName}
+            id={`global-cert-${index + 1}`}
+            eyebrow="Global certificate"
+            title={certificate.title}
+            className="certSceneSection"
+          >
+            <div className="glassPanel panelInset certificateSceneCard">
+              <button
+                type="button"
+                className="certificateScenePreview"
+                onClick={() =>
+                  setLightbox({
+                    title: certificate.title,
+                    subtitle: certificate.issuer,
+                    src: globalCertificatePdfUrl(certificate.fileName),
+                  })
+                }
+              >
+                <PdfPreview
+                  src={globalCertificatePdfUrl(certificate.fileName)}
+                  alt={certificate.title}
+                  className="panelInset certificatePreviewShell"
+                  scale={2.6}
+                />
+              </button>
+            </div>
+          </SectionShell>
+        ))}
+
+        {otherCertificateChunks.map((chunk, chunkIndex) => (
+          <SectionShell
+            key={`other-certs-${chunkIndex + 1}`}
+            id={`other-certs-${chunkIndex + 1}`}
+            eyebrow="Other certifications"
+            title={`Other certifications ${chunkIndex + 1}/${otherCertificateChunks.length}`}
+            className="otherCertSceneSection"
+          >
+            <div className="glassPanel panelInset certGridScene">
+              <div className="certGrid certGridSceneGrid">
+                {chunk.map((certificate: CertificateItem) => {
+                  const src = certificatePdfUrl(certificate.fileName);
+                  return (
+                    <button
+                      key={certificate.fileName}
+                      type="button"
+                      className="certTile"
+                      onClick={() => setLightbox({ title: certificate.title, subtitle: certificate.issuer, src })}
+                    >
+                      <PdfPreview src={src} alt={certificate.title} className="certTilePreview" scale={1.2} />
+                      <div className="certTileContent">
+                        <h4 className="certTileTitle">{certificate.title}</h4>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
-          </div>
-        </SectionShell>
+          </SectionShell>
+        ))}
 
-        <SectionShell
-          id="global-certifications"
-          eyebrow="Certifications"
-          title={`Global certificates (${globalCertificates.length})`}
-          className="certificationsSection globalCertSection"
-        >
-          <CertificateCarousel
-            certificates={globalCertificates}
-            onOpen={(certificate: CertificateItem) => {
-              setLightbox({
-                title: certificate.title,
-                subtitle: certificate.summary,
-                src: certificatePdfUrl(certificate.fileName),
-              });
-            }}
-          />
-        </SectionShell>
-
-        <SectionShell
-          id="other-certifications"
-          eyebrow="Certifications"
-          title={`Other certificates (${otherCertificates.length})`}
-          className="otherCertSection"
-        >
-          <div className="glassPanel panelInset otherCertPager">
-            <div className="projectHeader">
-              <h3 className="cardTitle" style={{ fontSize: "clamp(1.9rem, 2.6vw, 2.7rem)" }}>
-                {String(otherCertPage + 1).padStart(2, "0")} / {String(Math.max(otherCertificatePages.length, 1)).padStart(2, "0")}
-              </h3>
-              <div className="carouselIndex">{otherCertificates.length}</div>
-            </div>
-
-            <div className="certGrid certGridPaged">
-              {(otherCertificatePages[otherCertPage] ?? []).map((certificate) => {
-                const src = certificatePdfUrl(certificate.fileName);
-                return (
-                  <button
-                    key={certificate.fileName}
-                    type="button"
-                    className="certTile"
-                    onClick={() => setLightbox({ title: certificate.title, subtitle: certificate.issuer, src })}
-                  >
-                    <PdfPreview src={src} alt={certificate.title} className="certTilePreview" scale={1.05} />
-                    <div className="certTileContent">
-                      <h4 className="certTileTitle">{certificate.title}</h4>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="carouselControls">
-              <button
-                className="buttonAlt navButton"
-                type="button"
-                onClick={() => setOtherCertPage((value) => (value - 1 + otherCertificatePages.length) % otherCertificatePages.length)}
-                aria-label="Previous certificate page"
-                disabled={otherCertificatePages.length <= 1}
-              >
-                <ChevronLeft size={16} />
-                Previous
-              </button>
-              <button
-                className="buttonAlt navButton"
-                type="button"
-                onClick={() => setOtherCertPage((value) => (value + 1) % otherCertificatePages.length)}
-                aria-label="Next certificate page"
-                disabled={otherCertificatePages.length <= 1}
-              >
-                Next
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          </div>
-        </SectionShell>
-
-        <SectionShell
-          id="awards"
-          eyebrow="Awards"
-          title="Awards and membership"
-        >
+        <SectionShell id="awards" eyebrow="Awards" title="Awards and membership" className="awardsSection">
           <div className="sectionGrid">
             <div className="glassPanel panelInset">
               <div className="timelineList">
@@ -387,22 +501,25 @@ export default function Page() {
             </div>
             <div className="glassPanel panelInset">
               <div className="sectionEyebrow">Membership</div>
-              <h3 className="cardTitle" style={{ fontSize: "clamp(1.9rem, 2.6vw, 2.7rem)" }}>
+              <h3 className="cardTitle" style={{ fontSize: "clamp(1.5rem, 2.2vw, 2.1rem)" }}>
                 {membership.title}
               </h3>
-              <div className="smallCaption" style={{ marginTop: 10 }}>{membership.organization}</div>
-              <div style={{ marginTop: 16 }}>
-                <PdfPreview src={membershipPdfUrl(membership.fileName)} alt={membership.title} className="panelInset certificatePreviewShell" scale={1.7} />
+              <div className="smallCaption" style={{ marginTop: 10 }}>
+                {membership.organization}
+              </div>
+              <div style={{ marginTop: 14 }}>
+                <PdfPreview
+                  src={membershipPdfUrl(membership.fileName)}
+                  alt={membership.title}
+                  className="panelInset certificatePreviewShell"
+                  scale={1.8}
+                />
               </div>
             </div>
           </div>
         </SectionShell>
 
-        <SectionShell
-          id="education"
-          eyebrow="Education"
-          title="Education"
-        >
+        <SectionShell id="education" eyebrow="Education" title="Education" className="educationSection">
           <div className="sectionGrid">
             <div className="glassPanel panelInset">
               <div className="timelineList">
@@ -417,10 +534,10 @@ export default function Page() {
               </div>
             </div>
             <div className="glassPanel panelInset">
-              <h3 className="cardTitle" style={{ fontSize: "clamp(1.9rem, 2.6vw, 2.7rem)" }}>
+              <h3 className="cardTitle" style={{ fontSize: "clamp(1.4rem, 2vw, 1.9rem)" }}>
                 Consistent academic performance.
               </h3>
-              <div className="metricGrid" style={{ marginTop: 18 }}>
+              <div className="metricGrid" style={{ marginTop: 14 }}>
                 <div className="metricChip">
                   <span>
                     <GraduationCap size={16} style={{ marginRight: 8, verticalAlign: "-3px" }} />
@@ -454,58 +571,43 @@ export default function Page() {
           </div>
         </SectionShell>
 
-        <SectionShell
-          id="internships"
-          eyebrow="Internships"
-          title="Internships"
-        >
-          <div className="sectionGrid">
+        {internships.map((item, index) => (
+          <SectionShell
+            key={item.title}
+            id={`internship-${index + 1}`}
+            eyebrow={`Internship ${index + 1}`}
+            title={item.title}
+            lead={item.organization}
+            className="internshipSceneSection"
+          >
             <div className="glassPanel panelInset">
               <div className="timelineList">
-                {internships.map((item) => (
-                  <article key={item.title} className="timelineItem">
-                    <div className="timelinePeriod">{item.period}</div>
-                    <h3 className="timelineTitle">{item.title}</h3>
-                    <div className="timelineOrg">{item.organization}</div>
-                    <div className="timelineBody">{item.details}</div>
-                  </article>
-                ))}
+                <article className="timelineItem">
+                  <div className="timelinePeriod">{item.period}</div>
+                  <div className="timelineBody">{item.details}</div>
+                </article>
               </div>
             </div>
-            <div className="glassPanel panelInset">
-              <h3 className="cardTitle" style={{ fontSize: "clamp(1.9rem, 2.6vw, 2.7rem)" }}>
-                Applied AI, delivery, and collaboration.
-              </h3>
-              <div className="tagRow" style={{ marginTop: 18 }}>
-                <span className="tag">AICTE</span>
-                <span className="tag">IBM SkillsBuild</span>
-                <span className="tag">Microsoft</span>
-                <span className="tag">SAP</span>
-              </div>
-            </div>
-          </div>
-        </SectionShell>
+          </SectionShell>
+        ))}
 
-        <SectionShell
-          id="contact"
-          eyebrow="Contact"
-          title="Contact"
-          className="contactSection"
-        >
+        <SectionShell id="contact" eyebrow="Contact" title="Contact" className="contactSection">
           <div className="glassPanel panelInset">
             <div className="contactGrid">
               <div>
                 <h3 className="contactTitle">Let&apos;s build the next serious interface.</h3>
-                <div className="buttonRow" style={{ marginTop: 22 }}>
+                <div className="contactLogoRow" style={{ marginTop: 20 }}>
                   {contactLinks.map((link) => (
                     <a
                       key={link.label}
-                      className="buttonAlt"
+                      className="contactLogoLink"
                       href={link.href}
                       target={link.href.startsWith("/") ? undefined : "_blank"}
                       rel={link.href.startsWith("/") ? undefined : "noreferrer"}
+                      aria-label={link.label}
+                      title={link.label}
                     >
-                      {link.label}
+                      {getContactIcon(link.label)}
                     </a>
                   ))}
                 </div>
@@ -531,31 +633,6 @@ export default function Page() {
                     <div className="infoValue">{heroCopy.location}</div>
                   </div>
                   <MapPin size={18} />
-                </div>
-                <div className="infoRow">
-                  <div>
-                    <div className="infoLabel">Resume</div>
-                    <div className="infoValue">Education, internships, and certifications</div>
-                  </div>
-                  <a className="button primary" href="/api/assets/my/RESUME.pdf" target="_blank" rel="noreferrer">
-                    Open PDF
-                    <ExternalLink size={16} />
-                  </a>
-                </div>
-                <div className="profileLinkSection">
-                  <div className="sectionEyebrow">Coding Profiles</div>
-                  <div className="profileLinkGrid">
-                    {codingProfiles.map((profile) => (
-                      <a key={profile.label} className="profileLinkCard" href={profile.href} target="_blank" rel="noreferrer">
-                        {(() => {
-                          const Icon = getProfileIcon(profile.label);
-                          return <Icon size={18} />;
-                        })()}
-                        <span className="profileLinkLabel">{profile.label}</span>
-                        <strong className="profileLinkValue">{profile.value}</strong>
-                      </a>
-                    ))}
-                  </div>
                 </div>
               </div>
             </div>

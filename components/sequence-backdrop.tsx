@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { backgroundFrameUrl } from "../lib/asset";
-import { scenes } from "../lib/content";
 
 const INTRO = { start: 1, end: 112 };
 const LOOP = { start: 113, end: 193 };
@@ -136,18 +135,20 @@ export default function SequenceBackdrop() {
         }
       });
 
-      const scene = scenes[sceneIndex] ?? scenes[0];
+      const totalSections = sections.length;
+      const isIntro = sceneIndex === 0;
+      const isOutro = totalSections > 0 && sceneIndex === totalSections - 1;
       let nextFrame = activeFrameRef.current;
 
-      if (scene.kind === "intro") {
+      if (isIntro) {
         const range = INTRO.end - INTRO.start + 1;
         nextFrame = INTRO.start + Math.floor(sceneProgress * range);
-      } else if (scene.kind === "outro") {
+      } else if (isOutro) {
         const range = OUTRO.end - OUTRO.start + 1;
         nextFrame = OUTRO.start + Math.floor(sceneProgress * range);
       } else {
         const range = LOOP.end - LOOP.start + 1;
-        const virtualProgress = scene.segmentIndex + sceneProgress;
+        const virtualProgress = Math.max(0, sceneIndex - 1) + sceneProgress;
         const loopStep = ((Math.floor(virtualProgress * range) % range) + range) % range;
         nextFrame = LOOP.start + loopStep;
       }

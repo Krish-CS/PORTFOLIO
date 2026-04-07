@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    serverComponentsExternalPackages: ["@napi-rs/canvas"],
+    serverComponentsExternalPackages: ["pdf-to-img", "pdfjs-dist"],
   },
 };
 
