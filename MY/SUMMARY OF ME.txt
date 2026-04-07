@@ -1,0 +1,124 @@
+SUMMARY OF ME
+
+K. KRISHKANTH
+Trichy, Tamil Nadu, India
+Phone: +91 8148294145
+Email: krishkanthkrce@gmail.com
+LinkedIn: https://www.linkedin.com/in/krishkanth-k-79b4422a4
+GitHub: https://github.com/Krish-CS
+LeetCode: https://leetcode.com/u/Krish_CS
+HackerRank: https://www.hackerrank.com/profile/krishkanthkrce
+
+PROFILE
+Third-year Computer Science and Engineering student at K. Ramakrishnan College of Engineering with strong interest in Artificial Intelligence, backend development, and intelligent automation systems. Experienced in building AI-powered applications, backend APIs, and scalable systems using Python and modern machine learning technologies. Passionate about solving real-world problems through data-driven software systems and intelligent automation.
+
+EDUCATION
+Bachelor of Engineering (B.E.) - Computer Science and Engineering
+K. Ramakrishnan College of Engineering
+2023 - 2027
+CGPA: 9.41
+
+Higher Secondary Certificate (HSLC)
+Alpha Wisdom Vidhyasharam
+2021 - 2023
+Percentage: 86%
+
+Secondary School Leaving Certificate (SSLC)
+Alpha Wisdom Vidhyasharam
+2020 - 2021
+Percentage: 72%
+
+TECHNICAL SKILLS
+
+Programming Languages
+Python, Java, C, C++, R
+
+Web and Backend Development
+HTML, CSS, JavaScript, Django, Flask, FastAPI
+
+Databases
+MySQL, MongoDB, PostgreSQL
+
+Artificial Intelligence and Machine Learning
+Data Science, Large Language Models (LLMs), Natural Language Processing (NLP), Generative AI
+
+Libraries and Tools
+Pandas, NumPy, PyTorch, Scikit-learn
+
+Professional Skills
+Team Collaboration
+Efficient Communication
+
+PROJECTS
+
+MEDUSA - Women Safety Edge Protection System
+SkillShare - Skill Marketplace and Opportunity Platform
+Krish Mind AI - Personalized AI Assistant
+Expense Tracker with GUI
+Job Priority Storage Using Trees
+Rhythmic - Music Menu Driver
+
+INTERNSHIP AND EXPERIENCE
+
+Artificial Intelligence and Machine Learning Intern
+Edunet Foundation in collaboration with AICTE and IBM SkillsBuild
+June 2025 - July 2025
+
+AI Internship - TechSaksham
+Microsoft, SAP, AICTE and Edunet Foundation
+
+Event Coordinator - TechXplore 24-Hour Hackathon
+K. Ramakrishnan College of Engineering
+
+CERTIFICATIONS
+
+MongoDB Associate Database Administrator - MongoDB Global Certification
+
+NPTEL Certifications - IIT Madras
+Software Conceptual Design - Score: 93
+Problem Solving through Programming in C - Score: 78
+Cloud Computing - Score: 67
+The Joy of Computing using Python - Score: 91
+Fundamental Algorithms: Design and Analysis - Score: 73
+Programming in Java - Score: 76
+Python for Data Science - Score: 83
+
+Celonis Certifications
+Academic Process Mining Fundamentals
+Celonis Foundations
+Celonis AI Foundations
+
+IBM SkillsBuild Certification
+Artificial Intelligence Fundamentals
+
+HP LIFE / HP Foundation Certifications
+AI for Beginners
+Effective Leadership
+Resume Writing and Job Interviewing
+Data Science and Analytics
+Introduction to Cybersecurity Awareness
+Effective Presentations
+Introduction to Digital Business Skills
+Agile Project Management
+
+ACHIEVEMENTS
+NPTEL Discipline Star - Computer Science and Engineering (Jul-Dec 2025)
+
+PROFESSIONAL MEMBERSHIP
+The Institution of Engineers (India) - Student Member
+
+CODING PROFILES
+HackerRank Score: 30090
+GitHub Score: 107
+
+ACTIVITIES AND INTERESTS
+Gardening
+Reading Books
+Exploring Emerging Technologies
+Problem Solving and Algorithmic Thinking
+
+ADDRESS
+No. 8 Viswakarma Nagar
+Wireless Road, Airport
+Trichy - 620007
+Tamil Nadu, India

@@ -1,0 +1,24 @@
+https://github.com/Krish-CS/AUTOMATED-REPORT-GENERATION  
+https://github.com/Krish-CS/API-INTEGRATION-AND-DATA-VISUALIZATION  
+https://github.com/Krish-CS/WaterQualityPrediction  
+https://github.com/Krish-CS/QUESTION-MIND  
+https://github.com/Krish-CS/EMPLOYEE-SALARY-PREDICTION  
+https://github.com/Krish-CS/CASSANDRA  
+https://github.com/Krish-CS/RESULTS-VIEWER-SITE-OPTIMIZATION-USING-FLASK  
+https://github.com/Krish-CS/MEDUSA-WOMEN-SAFETY-APPLICATION  
+https://github.com/Krish-CS/Image-Encryption-and-Decryption  
+https://github.com/Krish-CS/Twitter-Airline-Sentiment-ananlysis  
+https://github.com/Krish-CS/Personal-Fitness-Tracker  
+https://github.com/Krish-CS/SIMPLE-KEYLOGGER  
+https://github.com/Krish-CS/SKILLSHARE  
+https://github.com/Krish-CS/STRONG-PASSWORD-CHECKER  
+https://github.com/Krish-CS/CAESAR-CIPHER-TEXT-ENCRYPTION  
+https://github.com/Krish-CS/E-Learning  
+https://github.com/Krish-CS/Calorie-Prediction-using-R  
+https://github.com/Krish-CS/AI-CHATBOT-WITH-NLP  
+
+
+Live Projects
+https://krish-cs.github.io/krish-repox-frontend/
+https://krish-cs.github.io/krishopus-frontend/
+https://cassandra-ai.onrender.com/
