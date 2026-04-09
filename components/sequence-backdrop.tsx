@@ -54,6 +54,10 @@ function drawFrame(
   context.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
 }
 
+function easeInOutCubic(value: number) {
+  return value < 0.5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2;
+}
+
 export default function SequenceBackdrop() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const activeFrameRef = useRef(1);
@@ -163,16 +167,17 @@ export default function SequenceBackdrop() {
       const isIntro = sceneIndex === 0;
       const isOutro = totalSections > 0 && sceneIndex === totalSections - 1;
       let nextFrame = activeFrameRef.current;
+      const easedSceneProgress = easeInOutCubic(sceneProgress);
 
       if (isIntro) {
         const range = INTRO.end - INTRO.start + 1;
-        nextFrame = INTRO.start + Math.floor(sceneProgress * range);
+        nextFrame = INTRO.start + Math.floor(easedSceneProgress * range);
       } else if (isOutro) {
         const range = OUTRO.end - OUTRO.start + 1;
-        nextFrame = OUTRO.start + Math.floor(sceneProgress * range);
+        nextFrame = OUTRO.start + Math.floor(easedSceneProgress * range);
       } else {
         const range = LOOP.end - LOOP.start + 1;
-        const virtualProgress = Math.max(0, sceneIndex - 1) + sceneProgress;
+        const virtualProgress = Math.max(0, sceneIndex - 1) + easedSceneProgress;
         const loopStep = ((Math.floor(virtualProgress * range) % range) + range) % range;
         nextFrame = LOOP.start + loopStep;
       }

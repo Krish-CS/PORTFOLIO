@@ -108,10 +108,10 @@ function GlobalCertificateCard({ item }: { item: CertificationItem }) {
           </p>
         </div>
 
-        <div className="relative h-[60vh] lg:h-[75vh] w-full lg:flex-1 rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl">
+        <div className="relative h-[48vh] min-h-[300px] lg:h-[58vh] w-full lg:flex-1 rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl">
           {isPdf ? (
             <iframe 
-              src={`${item.src}#toolbar=0&navpanes=0&scrollbar=0&view=fitH`} 
+              src={`${item.src}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`} 
               className="absolute inset-0 h-full w-full border-none"
               title={item.name}
             />
@@ -133,16 +133,16 @@ function OtherCertificateCard({ item }: { item: CertificationItem }) {
 
   return (
     <article className="cert-item flex flex-col rounded-3xl border border-white/10 bg-[#111827]/30 backdrop-blur-md overflow-hidden">
-      <div className="p-6 border-b border-white/5 space-y-2 flex-shrink-0">
-        <p className="font-mono text-xs text-[#a78bfa] uppercase tracking-widest truncate font-bold mb-2">{item.issuer || 'Certification'}</p>
-        <h4 className="font-serif text-xl lg:text-3xl leading-tight text-white line-clamp-2" title={item.name}>{item.name}</h4>
-        <p className="font-mono text-[0.6rem] text-white/30 uppercase tracking-widest truncate mt-3">{item.fileName}</p>
+      <div className="p-6 border-b border-white/5 space-y-3 flex-shrink-0">
+        <p className="font-mono text-[clamp(0.9rem,1vw,1.1rem)] text-[#22d3ee] uppercase tracking-[0.35em] truncate font-bold mb-1">{item.issuer || 'Certification'}</p>
+        <h4 className="font-serif text-[clamp(1.15rem,1.5vw,1.9rem)] leading-[1.08] text-white" title={item.name}>{item.name}</h4>
+        <p className="font-mono text-[0.6rem] text-white/30 uppercase tracking-widest truncate mt-2">{item.fileName}</p>
       </div>
-      <div className="relative h-[55vh] min-h-[380px] w-full bg-black/50 p-2">
+      <div className="relative h-[42vh] min-h-[300px] w-full bg-black/50 p-2">
         <div className="relative h-full w-full rounded-xl overflow-hidden border border-white/5 bg-black">
           {isPdf ? (
             <iframe 
-              src={`${item.src}#toolbar=0&navpanes=0&scrollbar=0&view=fitH`} 
+              src={`${item.src}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`} 
               className="absolute inset-0 h-full w-full border-none pointer-events-auto"
               title={item.name}
             />

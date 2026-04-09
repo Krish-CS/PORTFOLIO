@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
+import type { TransformTemplate } from "motion-dom";
 import {
   ArrowRight,
   BookOpen,
@@ -20,6 +21,7 @@ import { SiHackerrank, SiLeetcode } from "react-icons/si";
 import SequenceBackdrop from "../components/sequence-backdrop";
 import PdfPreview from "../components/pdf-preview";
 import PdfLightbox from "../components/pdf-lightbox";
+import CertificateCarousel from "../components/certificate-carousel";
 import {
   awards,
   contactLinks,
@@ -63,12 +65,8 @@ const projectMotionPresets = [
   { x: -42, y: -28, rotate: 1.7, scale: 0.985 },
 ];
 
-const heroHighlights = [
-  { label: "AI systems", value: "Applied intelligence" },
-  { label: "Backend APIs", value: "FastAPI / Python" },
-  { label: "Automation", value: "Workflow design" },
-  { label: "Data products", value: "ML + analytics" },
-];
+const tiltTransformTemplate: TransformTemplate = (_transform, generatedTransform) =>
+  `${generatedTransform} perspective(1300px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateY(var(--tilt-lift, 0px))`;
 
 function SectionShell({
   id,
@@ -92,7 +90,7 @@ function SectionShell({
       className={`sectionShell ${className}`.trim()}
       initial={{ opacity: 0, x: 28, y: 8 }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, amount: 0.45 }}
+      viewport={{ once: false, amount: 0.28, margin: "-8% 0px -8% 0px" }}
       transition={{ duration: 0.66, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="sectionInner">
@@ -280,57 +278,45 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    // Run this logic on a slight delay to ensure all nested components have mounted their DOM nodes
-    const timeout = setTimeout(() => {
-      const cards = Array.from(document.querySelectorAll<HTMLElement>(".glassPanel, .cert-item, .education-card, .project-panel, .award-slide, .heroHighlightCard, .internship-card"));
-      const cleanups: Array<() => void> = [];
+    const cards = Array.from(document.querySelectorAll<HTMLElement>(".glassPanel"));
+    const cleanups: Array<() => void> = [];
 
-      const updateTilt = (element: HTMLElement, clientX: number, clientY: number) => {
-        const rect = element.getBoundingClientRect();
-        const x = (clientX - rect.left) / rect.width;
-        const y = (clientY - rect.top) / rect.height;
-        const tiltX = ((0.5 - y) * 9).toFixed(2);
-        const tiltY = ((x - 0.5) * 9).toFixed(2);
+    const updateTilt = (element: HTMLElement, clientX: number, clientY: number) => {
+      const rect = element.getBoundingClientRect();
+      const x = (clientX - rect.left) / rect.width;
+      const y = (clientY - rect.top) / rect.height;
+      const tiltX = ((0.5 - y) * 11).toFixed(2);
+      const tiltY = ((x - 0.5) * 11).toFixed(2);
 
-        element.style.setProperty("--tilt-x", `${tiltX}deg`);
-        element.style.setProperty("--tilt-y", `${tiltY}deg`);
-        element.style.setProperty("--sheen-x", `${(x * 100).toFixed(2)}%`);
-        element.style.setProperty("--sheen-y", `${(y * 100).toFixed(2)}%`);
-      };
+      element.style.setProperty("--tilt-x", `${tiltX}deg`);
+      element.style.setProperty("--tilt-y", `${tiltY}deg`);
+      element.style.setProperty("--sheen-x", `${(x * 100).toFixed(2)}%`);
+      element.style.setProperty("--sheen-y", `${(y * 100).toFixed(2)}%`);
+    };
 
-      const clearTilt = (element: HTMLElement) => {
-        element.style.setProperty("--tilt-x", "0deg");
-        element.style.setProperty("--tilt-y", "0deg");
-        element.style.setProperty("--sheen-x", "50%");
-        element.style.setProperty("--sheen-y", "50%");
-      };
+    const clearTilt = (element: HTMLElement) => {
+      element.style.setProperty("--tilt-x", "0deg");
+      element.style.setProperty("--tilt-y", "0deg");
+      element.style.setProperty("--sheen-x", "50%");
+      element.style.setProperty("--sheen-y", "50%");
+    };
 
-      cards.forEach((element) => {
-        const onPointerMove = (event: PointerEvent) => updateTilt(element, event.clientX, event.clientY);
-        const onPointerLeave = () => clearTilt(element);
+    cards.forEach((element) => {
+      const onPointerMove = (event: PointerEvent) => updateTilt(element, event.clientX, event.clientY);
+      const onPointerLeave = () => clearTilt(element);
 
-        element.style.setProperty("--tilt-x", "0deg");
-        element.style.setProperty("--tilt-y", "0deg");
-        element.style.setProperty("--sheen-x", "50%");
-        element.style.setProperty("--sheen-y", "50%");
-        element.addEventListener("pointermove", onPointerMove);
-        element.addEventListener("pointerleave", onPointerLeave);
+      clearTilt(element);
+      element.addEventListener("pointermove", onPointerMove);
+      element.addEventListener("pointerleave", onPointerLeave);
 
-        cleanups.push(() => {
-          element.removeEventListener("pointermove", onPointerMove);
-          element.removeEventListener("pointerleave", onPointerLeave);
-        });
+      cleanups.push(() => {
+        element.removeEventListener("pointermove", onPointerMove);
+        element.removeEventListener("pointerleave", onPointerLeave);
       });
-
-      // Save cleanups to a global or ref to clean up on unmount
-      (window as any).__tiltCleanups = cleanups;
-    }, 1000);
+    });
 
     return () => {
-      clearTimeout(timeout);
-      if ((window as any).__tiltCleanups) {
-        (window as any).__tiltCleanups.forEach((cleanup: any) => cleanup());
-      }
+      cleanups.forEach((cleanup) => cleanup());
     };
   }, []);
 
@@ -361,6 +347,7 @@ export default function Page() {
           <div className="heroGrid">
             <motion.div
               className="glassPanel heroCopy"
+              transformTemplate={tiltTransformTemplate}
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.08 }}
@@ -371,7 +358,7 @@ export default function Page() {
               </h1>
               <p className="heroSubtitle">{heroCopy.subtitle}</p>
               <p className="heroDescription">{heroCopy.description}</p>
-              <div className="heroActions" style={{ marginTop: 18 }}>
+              <div className="heroActions" style={{ marginTop: 14 }}>
                 <a className="button primary" href="#project-1">
                   Explore work
                   <ArrowRight size={16} />
@@ -389,23 +376,13 @@ export default function Page() {
                     </div>
                   ))}
                 </div>
-                <div className="heroHighlightSection">
-                  <div className="sectionEyebrow">Core focus</div>
-                  <div className="heroHighlightGrid">
-                    {heroHighlights.map((item) => (
-                      <div key={item.label} className="heroHighlightCard">
-                        <span className="heroHighlightLabel">{item.label}</span>
-                        <span className="heroHighlightValue">{item.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
                 <div className="smallCaption">{heroCopy.location}</div>
               </div>
             </motion.div>
 
             <motion.div
               className="glassPanel heroPortrait"
+              transformTemplate={tiltTransformTemplate}
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.7, delay: 0.12 }}
@@ -438,6 +415,7 @@ export default function Page() {
             >
               <motion.div
                 className={`glassPanel panelInset projectSceneGrid ${index % 2 === 1 ? "reverse" : ""}`}
+                transformTemplate={tiltTransformTemplate}
                 initial={{
                   opacity: 0,
                   x: motionPreset.x,
@@ -447,7 +425,7 @@ export default function Page() {
                   filter: "blur(10px)",
                 }}
                 whileInView={{ opacity: 1, x: 0, y: 0, rotate: 0, scale: 1, filter: "blur(0px)" }}
-                viewport={{ once: true, amount: 0.42 }}
+                viewport={{ once: false, amount: 0.18, margin: "-8% 0px -8% 0px" }}
                 transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
               >
                 <div className="projectSceneInfo">
@@ -471,76 +449,23 @@ export default function Page() {
           );
         })}
 
-        {globalCertificates.map((certificate, index) => (
-          <SectionShell
-            key={certificate.fileName}
-            id={`global-cert-${index + 1}`}
-            eyebrow={`Global certification ${index + 1}/${globalCertificates.length}`}
-            title={certificate.title}
-            className="globalCertSceneSection"
-          >
-            <div className="globalCertSceneLayout">
-              <motion.button
-                type="button"
-                className="glassPanel panelInset certificateScenePreview globalCertPreviewCard"
-                initial={{ opacity: 0, x: -56, scale: 0.97, rotate: -1.5 }}
-                whileInView={{ opacity: 1, x: 0, scale: 1, rotate: 0 }}
-                viewport={{ once: true, amount: 0.45 }}
-                transition={{ duration: 0.74, ease: [0.22, 1, 0.36, 1] }}
-                onClick={() =>
-                  setLightbox({
-                    title: certificate.title,
-                    subtitle: certificate.issuer,
-                    src: globalCertificatePdfUrl(certificate.fileName),
-                  })
-                }
-              >
-                <PdfPreview
-                  src={globalCertificatePdfUrl(certificate.fileName)}
-                  alt={certificate.title}
-                  className="panelInset certificatePreviewShell globalCertificatePreviewShell"
-                  scale={2.6}
-                />
-              </motion.button>
-
-              <motion.article
-                className="glassPanel panelInset globalCertInfoCard"
-                initial={{ opacity: 0, x: 56, scale: 0.98 }}
-                whileInView={{ opacity: 1, x: 0, scale: 1 }}
-                viewport={{ once: true, amount: 0.45 }}
-                transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
-              >
-                <div className="globalCertMetaRow">
-                  <span className="sectionEyebrow">{certificate.issuer}</span>
-                  <span className="globalCertStep">{String(index + 1).padStart(2, "0")}</span>
-                </div>
-                <h3 className="globalCertTitle">{certificate.title}</h3>
-                <p className="globalCertSummary">
-                  {certificate.summary ?? "Industry-recognized credential demonstrating validated technical capability and applied domain understanding."}
-                </p>
-                <div className="globalCertTagCloud">
-                  <span className="tag">Verified</span>
-                  <span className="tag">Global</span>
-                  <span className="tag">Portfolio credential</span>
-                </div>
-                <button
-                  type="button"
-                  className="button primary"
-                  onClick={() =>
-                    setLightbox({
-                      title: certificate.title,
-                      subtitle: certificate.issuer,
-                      src: globalCertificatePdfUrl(certificate.fileName),
-                    })
-                  }
-                >
-                  Open certificate
-                  <ExternalLink size={16} />
-                </button>
-              </motion.article>
-            </div>
-          </SectionShell>
-        ))}
+        <SectionShell
+          id="global-cert-1"
+          eyebrow="Certifications"
+          title="Global certifications"
+          className="globalCertSceneSection"
+        >
+          <CertificateCarousel
+            certificates={globalCertificates}
+            onOpen={(certificate) => {
+              setLightbox({
+                title: certificate.title,
+                subtitle: certificate.summary,
+                src: globalCertificatePdfUrl(certificate.fileName),
+              });
+            }}
+          />
+        </SectionShell>
 
         {otherCertificateChunks.map((chunk, chunkIndex) => (
           <SectionShell
@@ -562,6 +487,7 @@ export default function Page() {
                       key={certificate.fileName}
                       type="button"
                       className="certTile"
+                      transformTemplate={tiltTransformTemplate}
                       initial={{
                         opacity: 0,
                         x: motionPreset.x * 0.18,
@@ -571,8 +497,8 @@ export default function Page() {
                       }}
                       whileInView={{ opacity: 1, x: 0, y: 0, rotate: 0, scale: 1 }}
                       whileHover={{ y: -4, scale: 1.01 }}
-                      viewport={{ once: true, amount: 0.34 }}
-                      transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1], delay: certIndex * 0.05 }}
+                      viewport={{ once: false, amount: 0.14, margin: "-8% 0px -8% 0px" }}
+                      transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1], delay: certIndex * 0.04 }}
                       onClick={() => setLightbox({ title: certificate.title, subtitle: certificate.issuer, src })}
                     >
                       <div className="certTileContent">
@@ -610,7 +536,7 @@ export default function Page() {
               <div className="smallCaption" style={{ marginTop: 10 }}>
                 {membership.organization}
               </div>
-              <div style={{ marginTop: 14 }}>
+              <div style={{ marginTop: 10 }}>
                 <PdfPreview
                   src={membershipPdfUrl(membership.fileName)}
                   alt={membership.title}

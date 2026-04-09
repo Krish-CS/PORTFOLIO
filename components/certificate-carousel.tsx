@@ -76,7 +76,12 @@ export default function CertificateCarousel({ certificates, onOpen }: Certificat
             }
           }}
         >
-          <PdfPreview src={src} alt={current.title} className="panelInset certificatePreviewShell" scale={2.6} />
+          <PdfPreview
+            src={src}
+            alt={current.title}
+            className="panelInset certificatePreviewShell globalCertificatePreviewShell"
+            scale={2.3}
+          />
           <div className="panelInset certificateMeta" style={{ paddingTop: 0 }}>
             <h4 className="cardTitle" style={{ fontSize: "clamp(1.7rem, 2.2vw, 2.3rem)" }}>
               {current.title}

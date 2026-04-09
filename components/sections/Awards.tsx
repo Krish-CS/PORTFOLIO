@@ -82,11 +82,11 @@ function TimelineSlide({ item, index, label }: { item: AssetItem; index: number;
         <p className="font-mono text-[0.65rem] text-white/30 uppercase tracking-widest truncate">{item.fileName}</p>
       </div>
 
-      <div className="relative h-[48vh] min-h-[300px] w-full bg-black/50 p-2">
+      <div className="relative h-[40vh] min-h-[260px] w-full bg-black/50 p-2">
         <div className="relative h-full w-full rounded-xl overflow-hidden border border-white/5 bg-black">
           {isPdf ? (
             <iframe 
-              src={`${item.src}#toolbar=0&navpanes=0&scrollbar=0&view=fitH`} 
+              src={`${item.src}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`} 
               className="absolute inset-0 h-full w-full border-none pointer-events-auto"
               title={item.name}
             />
