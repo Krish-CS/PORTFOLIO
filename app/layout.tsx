@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Cormorant_Garamond, Inter, Space_Grotesk } from "next/font/google";
+import { Playfair_Display, Cormorant_Garamond, Montserrat, Cinzel } from "next/font/google";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -12,19 +12,22 @@ const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   variable: "--font-cormorant",
   display: "swap",
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
 });
 
-const inter = Inter({
+const inter = Montserrat({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
+  weight: ["300", "400", "500", "600"],
 });
 
-const spaceGrotesk = Space_Grotesk({
+const spaceGrotesk = Cinzel({
   subsets: ["latin"],
   variable: "--font-space-grotesk",
   display: "swap",
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {

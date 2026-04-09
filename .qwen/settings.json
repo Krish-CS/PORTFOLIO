@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(C:\\Users\\USER\\AppData\\Roaming\\Code\\User/**)",
+      "Bash(code *)",
+      "Bash(findstr *)"
+    ]
+  },
+  "$version": 3
+}

@@ -13,10 +13,10 @@ import {
   MapPin,
   Phone,
   Sparkles,
-  Trophy,
   Users,
 } from "lucide-react";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
+import { SiHackerrank, SiLeetcode } from "react-icons/si";
 import SequenceBackdrop from "../components/sequence-backdrop";
 import PdfPreview from "../components/pdf-preview";
 import PdfLightbox from "../components/pdf-lightbox";
@@ -55,12 +55,19 @@ type NavItem = {
 };
 
 const projectMotionPresets = [
-  { x: 120, y: 14, rotate: -4, scale: 0.96 },
-  { x: -120, y: -10, rotate: 4, scale: 0.96 },
-  { x: 0, y: 110, rotate: -2, scale: 0.95 },
-  { x: 0, y: -96, rotate: 2, scale: 0.95 },
-  { x: 84, y: 56, rotate: -3, scale: 0.96 },
-  { x: -88, y: -52, rotate: 3, scale: 0.96 },
+  { x: 56, y: 10, rotate: -2.2, scale: 0.985 },
+  { x: -56, y: -8, rotate: 2.2, scale: 0.985 },
+  { x: 0, y: 48, rotate: -1.4, scale: 0.98 },
+  { x: 0, y: -44, rotate: 1.4, scale: 0.98 },
+  { x: 42, y: 30, rotate: -1.7, scale: 0.985 },
+  { x: -42, y: -28, rotate: 1.7, scale: 0.985 },
+];
+
+const heroHighlights = [
+  { label: "AI systems", value: "Applied intelligence" },
+  { label: "Backend APIs", value: "FastAPI / Python" },
+  { label: "Automation", value: "Workflow design" },
+  { label: "Data products", value: "ML + analytics" },
 ];
 
 function SectionShell({
@@ -83,10 +90,10 @@ function SectionShell({
       id={id}
       data-scene
       className={`sectionShell ${className}`.trim()}
-      initial={{ opacity: 0, x: 56, y: 10 }}
+      initial={{ opacity: 0, x: 28, y: 8 }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: false, amount: 0.62 }}
-      transition={{ duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: true, amount: 0.45 }}
+      transition={{ duration: 0.66, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="sectionInner">
         <div className="sectionHeader">
@@ -105,8 +112,8 @@ function getContactIcon(label: string) {
 
   if (normalized.includes("github")) return <FaGithub size={18} />;
   if (normalized.includes("linkedin")) return <FaLinkedinIn size={18} />;
-  if (normalized.includes("leetcode")) return <Code2 size={18} />;
-  if (normalized.includes("hackerrank")) return <Trophy size={18} />;
+  if (normalized.includes("leetcode")) return <SiLeetcode size={18} />;
+  if (normalized.includes("hackerrank")) return <SiHackerrank size={18} />;
   if (normalized.includes("resume")) return <FileText size={18} />;
 
   return <ExternalLink size={18} />;
@@ -150,8 +157,9 @@ function ProjectVisual({ project }: { project: Project }) {
 export default function Page() {
   const [activeSection, setActiveSection] = useState("hero");
   const [lightbox, setLightbox] = useState<LightboxState>(null);
+  const [certChunkSize, setCertChunkSize] = useState(6);
 
-  const otherCertificateChunks = useMemo(() => chunkItems(otherCertificates, 6), []);
+  const otherCertificateChunks = useMemo(() => chunkItems(otherCertificates, certChunkSize), [certChunkSize]);
 
   const navItems: NavItem[] = useMemo(
     () => [
@@ -174,6 +182,28 @@ export default function Page() {
     if (activeSection.startsWith("internship-")) return "internships";
     return activeSection;
   }, [activeSection]);
+
+  useEffect(() => {
+    const updateChunkSize = () => {
+      const width = window.innerWidth;
+      if (width <= 760) {
+        setCertChunkSize(1);
+        return;
+      }
+      if (width <= 1260) {
+        setCertChunkSize(2);
+        return;
+      }
+      setCertChunkSize(4);
+    };
+
+    updateChunkSize();
+    window.addEventListener("resize", updateChunkSize, { passive: true });
+
+    return () => {
+      window.removeEventListener("resize", updateChunkSize);
+    };
+  }, []);
 
   useEffect(() => {
     const observed = Array.from(document.querySelectorAll<HTMLElement>("[data-scene]"));
@@ -250,48 +280,57 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    const cards = Array.from(document.querySelectorAll<HTMLElement>(".glassPanel"));
-    const cleanups: Array<() => void> = [];
+    // Run this logic on a slight delay to ensure all nested components have mounted their DOM nodes
+    const timeout = setTimeout(() => {
+      const cards = Array.from(document.querySelectorAll<HTMLElement>(".glassPanel, .cert-item, .education-card, .project-panel, .award-slide, .heroHighlightCard, .internship-card"));
+      const cleanups: Array<() => void> = [];
 
-    const updateTilt = (element: HTMLElement, clientX: number, clientY: number) => {
-      const rect = element.getBoundingClientRect();
-      const x = (clientX - rect.left) / rect.width;
-      const y = (clientY - rect.top) / rect.height;
-      const tiltX = ((0.5 - y) * 9).toFixed(2);
-      const tiltY = ((x - 0.5) * 9).toFixed(2);
+      const updateTilt = (element: HTMLElement, clientX: number, clientY: number) => {
+        const rect = element.getBoundingClientRect();
+        const x = (clientX - rect.left) / rect.width;
+        const y = (clientY - rect.top) / rect.height;
+        const tiltX = ((0.5 - y) * 9).toFixed(2);
+        const tiltY = ((x - 0.5) * 9).toFixed(2);
 
-      element.style.setProperty("--tilt-x", `${tiltX}deg`);
-      element.style.setProperty("--tilt-y", `${tiltY}deg`);
-      element.style.setProperty("--sheen-x", `${(x * 100).toFixed(2)}%`);
-      element.style.setProperty("--sheen-y", `${(y * 100).toFixed(2)}%`);
-    };
+        element.style.setProperty("--tilt-x", `${tiltX}deg`);
+        element.style.setProperty("--tilt-y", `${tiltY}deg`);
+        element.style.setProperty("--sheen-x", `${(x * 100).toFixed(2)}%`);
+        element.style.setProperty("--sheen-y", `${(y * 100).toFixed(2)}%`);
+      };
 
-    const clearTilt = (element: HTMLElement) => {
-      element.style.setProperty("--tilt-x", "0deg");
-      element.style.setProperty("--tilt-y", "0deg");
-      element.style.setProperty("--sheen-x", "50%");
-      element.style.setProperty("--sheen-y", "50%");
-    };
+      const clearTilt = (element: HTMLElement) => {
+        element.style.setProperty("--tilt-x", "0deg");
+        element.style.setProperty("--tilt-y", "0deg");
+        element.style.setProperty("--sheen-x", "50%");
+        element.style.setProperty("--sheen-y", "50%");
+      };
 
-    cards.forEach((element) => {
-      const onPointerMove = (event: PointerEvent) => updateTilt(element, event.clientX, event.clientY);
-      const onPointerLeave = () => clearTilt(element);
+      cards.forEach((element) => {
+        const onPointerMove = (event: PointerEvent) => updateTilt(element, event.clientX, event.clientY);
+        const onPointerLeave = () => clearTilt(element);
 
-      element.style.setProperty("--tilt-x", "0deg");
-      element.style.setProperty("--tilt-y", "0deg");
-      element.style.setProperty("--sheen-x", "50%");
-      element.style.setProperty("--sheen-y", "50%");
-      element.addEventListener("pointermove", onPointerMove);
-      element.addEventListener("pointerleave", onPointerLeave);
+        element.style.setProperty("--tilt-x", "0deg");
+        element.style.setProperty("--tilt-y", "0deg");
+        element.style.setProperty("--sheen-x", "50%");
+        element.style.setProperty("--sheen-y", "50%");
+        element.addEventListener("pointermove", onPointerMove);
+        element.addEventListener("pointerleave", onPointerLeave);
 
-      cleanups.push(() => {
-        element.removeEventListener("pointermove", onPointerMove);
-        element.removeEventListener("pointerleave", onPointerLeave);
+        cleanups.push(() => {
+          element.removeEventListener("pointermove", onPointerMove);
+          element.removeEventListener("pointerleave", onPointerLeave);
+        });
       });
-    });
+
+      // Save cleanups to a global or ref to clean up on unmount
+      (window as any).__tiltCleanups = cleanups;
+    }, 1000);
 
     return () => {
-      cleanups.forEach((cleanup) => cleanup());
+      clearTimeout(timeout);
+      if ((window as any).__tiltCleanups) {
+        (window as any).__tiltCleanups.forEach((cleanup: any) => cleanup());
+      }
     };
   }, []);
 
@@ -306,7 +345,6 @@ export default function Page() {
             href={`#${item.target}`}
             className={`navItemDot ${activeNav === item.id ? "active" : ""}`}
             aria-label={item.label}
-            title={item.label}
           />
         ))}
       </nav>
@@ -327,7 +365,6 @@ export default function Page() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.08 }}
             >
-              <div className="heroKicker">Portfolio / projects / experience</div>
               <h1 className="heroTitle">
                 {heroCopy.name}
                 <span>Computer science student.</span>
@@ -345,12 +382,23 @@ export default function Page() {
               </div>
               <div className="heroMeta">
                 <div className="statGrid">
-                  {profileStats.slice(0, 2).map((stat) => (
+                  {profileStats.map((stat) => (
                     <div key={stat.label} className="statCard">
                       <strong className="statValue">{stat.value}</strong>
                       <span className="statLabel">{stat.label}</span>
                     </div>
                   ))}
+                </div>
+                <div className="heroHighlightSection">
+                  <div className="sectionEyebrow">Core focus</div>
+                  <div className="heroHighlightGrid">
+                    {heroHighlights.map((item) => (
+                      <div key={item.label} className="heroHighlightCard">
+                        <span className="heroHighlightLabel">{item.label}</span>
+                        <span className="heroHighlightValue">{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div className="smallCaption">{heroCopy.location}</div>
               </div>
@@ -399,8 +447,8 @@ export default function Page() {
                   filter: "blur(10px)",
                 }}
                 whileInView={{ opacity: 1, x: 0, y: 0, rotate: 0, scale: 1, filter: "blur(0px)" }}
-                viewport={{ once: false, amount: 0.56 }}
-                transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
+                viewport={{ once: true, amount: 0.42 }}
+                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
               >
                 <div className="projectSceneInfo">
                   <div className="tagRow">
@@ -427,14 +475,18 @@ export default function Page() {
           <SectionShell
             key={certificate.fileName}
             id={`global-cert-${index + 1}`}
-            eyebrow="Global certificate"
+            eyebrow={`Global certification ${index + 1}/${globalCertificates.length}`}
             title={certificate.title}
-            className="certSceneSection"
+            className="globalCertSceneSection"
           >
-            <div className="glassPanel panelInset certificateSceneCard">
-              <button
+            <div className="globalCertSceneLayout">
+              <motion.button
                 type="button"
-                className="certificateScenePreview"
+                className="glassPanel panelInset certificateScenePreview globalCertPreviewCard"
+                initial={{ opacity: 0, x: -56, scale: 0.97, rotate: -1.5 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1, rotate: 0 }}
+                viewport={{ once: true, amount: 0.45 }}
+                transition={{ duration: 0.74, ease: [0.22, 1, 0.36, 1] }}
                 onClick={() =>
                   setLightbox({
                     title: certificate.title,
@@ -446,10 +498,46 @@ export default function Page() {
                 <PdfPreview
                   src={globalCertificatePdfUrl(certificate.fileName)}
                   alt={certificate.title}
-                  className="panelInset certificatePreviewShell"
+                  className="panelInset certificatePreviewShell globalCertificatePreviewShell"
                   scale={2.6}
                 />
-              </button>
+              </motion.button>
+
+              <motion.article
+                className="glassPanel panelInset globalCertInfoCard"
+                initial={{ opacity: 0, x: 56, scale: 0.98 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                viewport={{ once: true, amount: 0.45 }}
+                transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
+              >
+                <div className="globalCertMetaRow">
+                  <span className="sectionEyebrow">{certificate.issuer}</span>
+                  <span className="globalCertStep">{String(index + 1).padStart(2, "0")}</span>
+                </div>
+                <h3 className="globalCertTitle">{certificate.title}</h3>
+                <p className="globalCertSummary">
+                  {certificate.summary ?? "Industry-recognized credential demonstrating validated technical capability and applied domain understanding."}
+                </p>
+                <div className="globalCertTagCloud">
+                  <span className="tag">Verified</span>
+                  <span className="tag">Global</span>
+                  <span className="tag">Portfolio credential</span>
+                </div>
+                <button
+                  type="button"
+                  className="button primary"
+                  onClick={() =>
+                    setLightbox({
+                      title: certificate.title,
+                      subtitle: certificate.issuer,
+                      src: globalCertificatePdfUrl(certificate.fileName),
+                    })
+                  }
+                >
+                  Open certificate
+                  <ExternalLink size={16} />
+                </button>
+              </motion.article>
             </div>
           </SectionShell>
         ))}
@@ -463,21 +551,36 @@ export default function Page() {
             className="otherCertSceneSection"
           >
             <div className="glassPanel panelInset certGridScene">
-              <div className="certGrid certGridSceneGrid">
-                {chunk.map((certificate: CertificateItem) => {
+              <div className={`certGrid certGridSceneGrid ${chunk.length >= 3 ? "grid-2" : "grid-1"}`}>
+                {chunk.map((certificate: CertificateItem, certIndex) => {
                   const src = certificatePdfUrl(certificate.fileName);
+                  const motionPreset = projectMotionPresets[
+                    (chunkIndex * certChunkSize + certIndex) % projectMotionPresets.length
+                  ];
                   return (
-                    <button
+                    <motion.button
                       key={certificate.fileName}
                       type="button"
                       className="certTile"
+                      initial={{
+                        opacity: 0,
+                        x: motionPreset.x * 0.18,
+                        y: motionPreset.y * 0.18,
+                        rotate: motionPreset.rotate * 0.45,
+                        scale: 0.96,
+                      }}
+                      whileInView={{ opacity: 1, x: 0, y: 0, rotate: 0, scale: 1 }}
+                      whileHover={{ y: -4, scale: 1.01 }}
+                      viewport={{ once: true, amount: 0.34 }}
+                      transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1], delay: certIndex * 0.05 }}
                       onClick={() => setLightbox({ title: certificate.title, subtitle: certificate.issuer, src })}
                     >
-                      <PdfPreview src={src} alt={certificate.title} className="certTilePreview" scale={1.2} />
                       <div className="certTileContent">
                         <h4 className="certTileTitle">{certificate.title}</h4>
+                        <div className="certTileIssuer">{certificate.issuer}</div>
                       </div>
-                    </button>
+                      <PdfPreview src={src} alt={certificate.title} className="certTilePreview" scale={1.2} />
+                    </motion.button>
                   );
                 })}
               </div>
@@ -511,7 +614,7 @@ export default function Page() {
                 <PdfPreview
                   src={membershipPdfUrl(membership.fileName)}
                   alt={membership.title}
-                  className="panelInset certificatePreviewShell"
+                  className="panelInset certificatePreviewShell membershipCertificateShell"
                   scale={1.8}
                 />
               </div>
@@ -533,11 +636,11 @@ export default function Page() {
                 ))}
               </div>
             </div>
-            <div className="glassPanel panelInset">
+            <div className="glassPanel panelInset educationMetricsPanel">
               <h3 className="cardTitle" style={{ fontSize: "clamp(1.4rem, 2vw, 1.9rem)" }}>
                 Consistent academic performance.
               </h3>
-              <div className="metricGrid" style={{ marginTop: 14 }}>
+              <div className="metricGrid educationMetricGrid">
                 <div className="metricChip">
                   <span>
                     <GraduationCap size={16} style={{ marginRight: 8, verticalAlign: "-3px" }} />
@@ -567,6 +670,7 @@ export default function Page() {
                   <strong>AI / Backend</strong>
                 </div>
               </div>
+              <div className="educationNote">Focused on AI, backend systems, and applied software engineering.</div>
             </div>
           </div>
         </SectionShell>

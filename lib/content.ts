@@ -67,8 +67,6 @@ export const heroCopy = {
 export const profileStats = [
   { label: "CGPA", value: "9.41" },
   { label: "Certifications", value: "20+" },
-  { label: "HackerRank", value: "30090" },
-  { label: "GitHub score", value: "107" },
 ];
 
 export const featuredProjects: Project[] = [
@@ -78,7 +76,6 @@ export const featuredProjects: Project[] = [
       "Safety-first edge protection workflow with alerting logic and a fast-action interface for critical situations.",
     tags: ["Safety", "Edge logic", "Real-time alerts"],
     href: "https://github.com/Krish-CS/MEDUSA-WOMEN-SAFETY-APPLICATION",
-    photoName: "MEDUSA.png",
   },
   {
     title: "SkillShare - Skill Marketplace and Opportunity Platform",
@@ -86,7 +83,6 @@ export const featuredProjects: Project[] = [
       "Marketplace-style platform for connecting learning demand with teachable skills and visible opportunities.",
     tags: ["Marketplace", "Discovery", "Opportunity flow"],
     href: "https://github.com/Krish-CS/SKILLSHARE",
-    photoName: "SKILLSHARE.png",
   },
   {
     title: "Krish Mind AI - Personalized AI Assistant",
@@ -94,35 +90,30 @@ export const featuredProjects: Project[] = [
       "Personal assistant concept focused on responsive AI interaction and practical productivity support.",
     tags: ["AI", "Assistant", "Automation"],
     href: "https://cassandra-ai.onrender.com/",
-    photoName: "CASSANDRA.png",
   },
   {
     title: "Automated Report Generation",
     description: "Automated reporting workflow for structured output and repeatable analysis.",
     tags: ["Automation", "Reports", "Python"],
     href: "https://github.com/Krish-CS/AUTOMATED-REPORT-GENERATION",
-    photoName: "AUTOMATED-REPORT-GENERATION.png",
   },
   {
     title: "API Integration and Data Visualization",
     description: "Integration-focused project centered on data presentation and clean API flow.",
     tags: ["API", "Visualization", "Data"],
     href: "https://github.com/Krish-CS/API-INTEGRATION-AND-DATA-VISUALIZATION",
-    photoName: "API-INTEGRATION-AND-DATA-VISUALIZATION.png",
   },
   {
     title: "Water Quality Prediction",
     description: "Prediction-oriented ML project focused on environmental measurement inputs.",
     tags: ["ML", "Prediction", "Environment"],
     href: "https://github.com/Krish-CS/WaterQualityPrediction",
-    photoName: "WaterQualityPrediction.png",
   },
   {
     title: "Question Mind",
     description: "Question-driven assistant workflow built around retrieval and response handling.",
     tags: ["NLP", "Assistant", "Search"],
     href: "https://github.com/Krish-CS/QUESTION-MIND",
-    photoName: "QUESTION-MIND.png",
   },
 ];
 
@@ -131,13 +122,13 @@ export const globalCertificates: CertificateItem[] = [
     title: "AWS Certified Cloud Practitioner",
     issuer: "AWS",
     fileName: "AWS Certified Cloud Practitioner certificate.pdf",
-    summary: "Foundational cloud certification with broad platform awareness.",
+    summary: "Through this certification, I gained a comprehensive understanding of AWS Cloud concepts, security, and compliance. It built a strong foundation in core AWS services, billing, and pricing models, enabling me to architect foundationally resilient and cost-optimized cloud solutions.",
   },
   {
     title: "MongoDB Associate Database Administrator",
     issuer: "MongoDB",
     fileName: "MongoDBAssociateDatabaseAdministrator_Badge20260310-31-bmd3l1.pdf",
-    summary: "Database administration certification focused on MongoDB operations.",
+    summary: "This course provided deep insights into MongoDB administration, encompassing deployment, performance tuning, and robust security practices. I acquired hands-on expertise in query optimization, indexing strategies, and database monitoring, equipping me to maintain high-availability data infrastructure.",
   },
 ];
 

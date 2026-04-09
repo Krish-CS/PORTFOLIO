@@ -58,6 +58,7 @@ export default function SequenceBackdrop() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const activeFrameRef = useRef(1);
   const activeImageRef = useRef<HTMLImageElement | null>(null);
+  const sectionsRef = useRef<HTMLElement[]>([]);
   const rafRef = useRef<number | null>(null);
   const drawPendingRef = useRef(false);
   const sizeRef = useRef({ width: 0, height: 0, scale: 1 });
@@ -78,6 +79,10 @@ export default function SequenceBackdrop() {
 
     let cancelled = false;
 
+    const refreshSections = () => {
+      sectionsRef.current = Array.from(document.querySelectorAll<HTMLElement>("[data-scene]"));
+    };
+
     const resize = () => {
       const scale = Math.min(window.devicePixelRatio || 1, 2.25);
       const width = window.innerWidth;
@@ -95,6 +100,8 @@ export default function SequenceBackdrop() {
       if (activeImageRef.current) {
         drawFrame(context, width, height, activeImageRef.current);
       }
+
+      refreshSections();
     };
 
     const draw = (frame: number) => {
@@ -115,7 +122,24 @@ export default function SequenceBackdrop() {
     const readActiveFrame = () => {
       if (cancelled) return;
 
-      const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-scene]"));
+      if (window.scrollY <= 2) {
+        const startFrame = INTRO.start;
+        if (startFrame !== activeFrameRef.current) {
+          activeFrameRef.current = startFrame;
+          draw(startFrame);
+        }
+
+        for (let frame = INTRO.start; frame <= Math.min(INTRO.start + PRELOAD_WINDOW, 300); frame += 1) {
+          preload(frame);
+        }
+        return;
+      }
+
+      let sections = sectionsRef.current;
+      if (sections.length === 0) {
+        refreshSections();
+        sections = sectionsRef.current;
+      }
       const viewportCenter = window.innerHeight * 0.5;
 
       let sceneIndex = 0;
@@ -177,6 +201,7 @@ export default function SequenceBackdrop() {
     };
 
     resize();
+    refreshSections();
     draw(activeFrameRef.current);
     window.addEventListener("resize", resize, { passive: true });
     window.addEventListener("scroll", scheduleRender, { passive: true });

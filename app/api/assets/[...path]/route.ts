@@ -21,9 +21,14 @@ function getContentType(fileName: string) {
   return "application/octet-stream";
 }
 
-async function renderPdfPreview(pdfPath: string) {
+function clampPreviewScale(value: number) {
+  if (!Number.isFinite(value)) return 2.4;
+  return Math.min(4, Math.max(1.2, value));
+}
+
+async function renderPdfPreview(pdfPath: string, scale: number) {
   const { pdf } = await import("pdf-to-img");
-  const document = await pdf(pdfPath, { scale: 2.2 });
+  const document = await pdf(pdfPath, { scale: clampPreviewScale(scale) });
   const preview = await document.getPage(1);
 
   return new Uint8Array(preview);
@@ -35,6 +40,7 @@ export async function GET(
 ) {
   const url = new URL(request.url);
   const wantsPreview = url.searchParams.get("preview") === "1";
+  const scaleParam = Number.parseFloat(url.searchParams.get("scale") ?? "2.4");
   const { path: segments } = await params;
   const decodedSegments = segments.map((segment) => {
     try {
@@ -66,7 +72,7 @@ export async function GET(
 
   try {
     if (wantsPreview && normalizedFile.toLowerCase().endsWith(".pdf")) {
-      const preview = await renderPdfPreview(normalizedFile);
+      const preview = await renderPdfPreview(normalizedFile, scaleParam);
       return new Response(preview, {
         headers: {
           "Content-Type": "image/png",
