@@ -292,6 +292,25 @@ a {
   will-change: transform;
 }
 
+.glassPanel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(circle at var(--sheen-x, 50%) var(--sheen-y, 50%), rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08) 22%, transparent 44%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.04), transparent 52%);
+  filter: blur(20px);
+  mix-blend-mode: screen;
+  transition: opacity 180ms ease;
+}
+
+.glassPanel:hover::after {
+  opacity: 1;
+}
+
 .glassPanel::before {
   content: "";
   position: absolute;
@@ -649,7 +668,10 @@ a {
 .educationSection .timelineItem {
   gap: 6px;
   padding: 12px 14px;
-  justify-content: center;
+  align-content: start;
+  justify-content: start;
+  justify-items: start;
+  text-align: left;
 }
 
 .educationSection .timelineTitle {
@@ -1027,10 +1049,13 @@ a {
 }
 
 .certificateStage .carouselViewport {
+  position: relative;
   display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 10px;
+  grid-template-columns: minmax(0, 0.96fr) minmax(290px, 1.04fr);
+  gap: 14px;
+  align-items: stretch;
+  width: 100%;
+  min-height: 0;
 }
 
 .certificateStage .certificatePreviewShell {
@@ -1049,16 +1074,33 @@ a {
   object-fit: contain;
 }
 
-.certificateStage .certificateMeta {
-  width: min(100%, 980px);
-  margin-inline: auto;
-  justify-items: center;
-  text-align: center;
-  gap: 6px;
+.certificateStage .carouselViewport.reverse .certificateVisual {
+  order: 2;
 }
 
-.certificateStage .certificateMeta .cardTitle {
-  line-height: 1.02;
+.certificateStage .carouselViewport.reverse .certificateDetails {
+  order: 1;
+}
+
+.certificateStage .certificateVisual,
+.certificateStage .certificateDetails {
+  min-width: 0;
+}
+
+.certificateStage .certificateVisual {
+  display: grid;
+  align-items: stretch;
+}
+
+.certificateStage .certificateDetails {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: clamp(10px, 1vw, 16px) clamp(8px, 1vw, 14px) clamp(12px, 1.2vw, 18px);
+}
+
+.certificateStage .buttonRow {
+  margin-top: auto;
 }
 
 .carouselViewport {
@@ -1102,7 +1144,8 @@ a {
 .pdfPreview img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
 }
 
 .pdfDocument,
@@ -1534,7 +1577,23 @@ a {
   position: relative;
   width: min(1200px, calc(100vw - 32px));
   max-height: min(90svh, 1000px);
-  overflow: auto;
+  overflow: hidden;
+}
+
+.modalPdfShell {
+  padding: 0;
+  width: 100%;
+  height: min(78svh, 820px);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.modalPdfFrame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: white;
 }
 
 .modalClose {

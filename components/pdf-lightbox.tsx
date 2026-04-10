@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
-import PdfPreview from "./pdf-preview";
 
 export type PdfLightboxProps = {
   open: boolean;
@@ -34,8 +33,13 @@ export default function PdfLightbox({ open, title, subtitle, src, onClose }: Pdf
             <button className="button modalClose" type="button" onClick={onClose} aria-label="Close preview">
               <X size={16} />
             </button>
-            <div className="panelInset" style={{ paddingBottom: 20 }}>
-              <PdfPreview src={src} alt={title} className="panelInset certificatePreviewShell" scale={2.8} />
+            <div className="panelInset modalPdfShell">
+              <iframe
+                className="modalPdfFrame"
+                src={src}
+                title={title}
+                loading="lazy"
+              />
             </div>
           </motion.div>
         </motion.div>

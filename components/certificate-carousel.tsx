@@ -13,11 +13,79 @@ type CertificateCarouselProps = {
 
 export default function CertificateCarousel({ certificates, onOpen }: CertificateCarouselProps) {
   const [index, setIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
   const sectionRef = useRef<HTMLDivElement | null>(null);
+  const indexRef = useRef(0);
+
+  useEffect(() => {
+    indexRef.current = index;
+  }, [index]);
 
   useEffect(() => {
     let deltaBuffer = 0;
     let locked = false;
+    let lockTimer: number | null = null;
+    let exitTimer: number | null = null;
+    let armedExitDirection: number | null = null;
+    const stepThreshold = 24;
+    const lockDuration = 420;
+    const exitDelay = 220;
+
+    const clearExitTimer = () => {
+      if (exitTimer !== null) {
+        window.clearTimeout(exitTimer);
+        exitTimer = null;
+      }
+    };
+
+    const disarmExit = () => {
+      armedExitDirection = null;
+      clearExitTimer();
+    };
+
+    const armExit = (scrollDirection: number) => {
+      if (scrollDirection === 0) return;
+
+      clearExitTimer();
+      exitTimer = window.setTimeout(() => {
+        exitTimer = null;
+
+        const atBoundary =
+          (scrollDirection > 0 && indexRef.current === certificates.length - 1) ||
+          (scrollDirection < 0 && indexRef.current === 0);
+
+        if (!locked && atBoundary && Math.abs(deltaBuffer) < stepThreshold) {
+          armedExitDirection = scrollDirection;
+          deltaBuffer = 0;
+        }
+      }, exitDelay);
+    };
+
+    const tryAdvance = () => {
+      if (locked) return;
+      if (Math.abs(deltaBuffer) < stepThreshold) return;
+
+      const scrollDirection = deltaBuffer > 0 ? 1 : -1;
+      const nextIndex = indexRef.current + scrollDirection;
+
+      if (nextIndex < 0 || nextIndex >= certificates.length) {
+        deltaBuffer = 0;
+        armExit(scrollDirection);
+        return;
+      }
+
+      deltaBuffer -= scrollDirection * stepThreshold;
+      locked = true;
+      disarmExit();
+      setDirection(scrollDirection);
+      setIndex(nextIndex);
+
+      lockTimer = window.setTimeout(() => {
+        locked = false;
+        lockTimer = null;
+        tryAdvance();
+      }, lockDuration);
+    };
 
     const onWheel = (event: WheelEvent) => {
       const section = sectionRef.current;
@@ -25,47 +93,74 @@ export default function CertificateCarousel({ certificates, onOpen }: Certificat
 
       const rect = section.getBoundingClientRect();
       const vh = window.innerHeight;
-      const isActive = rect.top < vh * 0.72 && rect.bottom > vh * 0.28;
-      if (!isActive) return;
+      const isActive = rect.top < vh * 0.92 && rect.bottom > vh * 0.08;
+      if (!isActive) {
+        disarmExit();
+        return;
+      }
 
+      const wheelDirection = Math.sign(event.deltaY);
+
+      if (armedExitDirection !== null && wheelDirection === armedExitDirection) {
+        return;
+      }
+
+      event.preventDefault();
+      disarmExit();
       deltaBuffer += event.deltaY;
-      if (locked || Math.abs(deltaBuffer) < 120) return;
-
-      const direction = deltaBuffer > 0 ? 1 : -1;
-      deltaBuffer = 0;
-      locked = true;
-      setIndex((value) => (value + direction + certificates.length) % certificates.length);
-
-      window.setTimeout(() => {
-        locked = false;
-      }, 420);
+      tryAdvance();
     };
 
-    window.addEventListener("wheel", onWheel, { passive: true });
+    window.addEventListener("wheel", onWheel, { passive: false });
 
     return () => {
       window.removeEventListener("wheel", onWheel);
+      if (lockTimer) {
+        window.clearTimeout(lockTimer);
+      }
+      clearExitTimer();
     };
   }, [certificates.length]);
 
   const current = certificates[index];
   const src = globalCertificatePdfUrl(current.fileName);
 
+  const slideVariants = {
+    enter: (slideDirection: number) => ({
+      opacity: 0,
+      x: slideDirection > 0 ? 76 : -76,
+      rotateY: slideDirection > 0 ? 10 : -10,
+      filter: "blur(12px)",
+      scale: 0.985,
+    }),
+    center: {
+      opacity: 1,
+      x: 0,
+      rotateY: 0,
+      filter: "blur(0px)",
+      scale: 1,
+    },
+    exit: (slideDirection: number) => ({
+      opacity: 0,
+      x: slideDirection > 0 ? -64 : 64,
+      rotateY: slideDirection > 0 ? -10 : 10,
+      filter: "blur(10px)",
+      scale: 0.985,
+    }),
+  };
+
   return (
     <div ref={sectionRef} className="glassPanel carouselFrame panelInset certificateStage">
-      <div className="projectHeader">
-        <h3 className="cardTitle">Global certificates</h3>
-        <div className="carouselIndex">{String(index + 1).padStart(2, "0")}</div>
-      </div>
-
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" custom={direction} initial={false}>
         <motion.div
           key={current.fileName}
-          initial={{ opacity: 0, x: 56, rotateY: -18, rotateX: 3, filter: "blur(10px)" }}
-          animate={{ opacity: 1, x: 0, y: 0, filter: "blur(0px)" }}
-          exit={{ opacity: 0, x: -38, rotateY: 18, rotateX: -3, filter: "blur(8px)" }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="carouselViewport"
+          custom={direction}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.48, ease: [0.16, 1, 0.3, 1] }}
+          className={`carouselViewport certificateSplit ${index % 2 === 1 ? "reverse" : ""}`}
           role="button"
           tabIndex={0}
           onClick={() => onOpen(current)}
@@ -76,16 +171,38 @@ export default function CertificateCarousel({ certificates, onOpen }: Certificat
             }
           }}
         >
-          <PdfPreview
-            src={src}
-            alt={current.title}
-            className="panelInset certificatePreviewShell globalCertificatePreviewShell"
-            scale={2.3}
-          />
-          <div className="panelInset certificateMeta" style={{ paddingTop: 0 }}>
-            <h4 className="cardTitle" style={{ fontSize: "clamp(1.7rem, 2.2vw, 2.3rem)" }}>
-              {current.title}
-            </h4>
+          <div className="certificateVisual">
+            <PdfPreview
+              src={src}
+              alt={current.title}
+              className="panelInset certificatePreviewShell globalCertificatePreviewShell"
+              scale={2.2}
+            />
+          </div>
+
+          <div className="certificateDetails">
+            <div className="globalCertMetaRow">
+              <span className="sectionEyebrow">{current.issuer}</span>
+              <span className="globalCertStep">
+                {String(index + 1).padStart(2, "0")} / {String(certificates.length).padStart(2, "0")}
+              </span>
+            </div>
+            <h4 className="globalCertTitle">{current.title}</h4>
+            <p className="globalCertSummary">
+              {current.summary ?? "Industry-recognized credential demonstrating validated technical capability and applied domain understanding."}
+            </p>
+            <div className="buttonRow" style={{ marginTop: "auto" }}>
+              <button
+                className="button primary"
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onOpen(current);
+                }}
+              >
+                Open preview
+              </button>
+            </div>
           </div>
         </motion.div>
       </AnimatePresence>

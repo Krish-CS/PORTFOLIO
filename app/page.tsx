@@ -453,6 +453,7 @@ export default function Page() {
           id="global-cert-1"
           eyebrow="Certifications"
           title="Global certifications"
+          lead={`${globalCertificates.length} certificates in sequence`}
           className="globalCertSceneSection"
         >
           <CertificateCarousel
